@@ -1,0 +1,39 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+	</ui:style>
+	<g:FlowPanel styleName="tracking-container">
+		<g:FlowPanel styleName="tracking-controls">
+			<g:VerticalPanel styleName="tracking-fields">
+				<g:HorizontalPanel styleName="tracking-field-row">
+					<g:cell width="30%" verticalAlignment="middle"
+						horizontalAlignment="left">
+						<g:HTML styleName="tracking-field-label">Bar code:</g:HTML>
+					</g:cell>
+					<g:cell width="70%" verticalAlignment="middle"
+						horizontalAlignment="left">
+						<g:TextBox ui:field="barCodeTextBox" styleName="tracking-field-input"></g:TextBox>
+					</g:cell>
+				</g:HorizontalPanel>
+				<g:HorizontalPanel styleName="tracking-field-row">
+					<g:cell width="30%" verticalAlignment="middle"
+						horizontalAlignment="left">
+						<g:HTML styleName="tracking-field-label">Description:</g:HTML>
+					</g:cell>
+					<g:cell width="70%" verticalAlignment="middle"
+						horizontalAlignment="left">
+						<g:TextBox ui:field="nameTextBox" styleName="tracking-field-input"></g:TextBox>
+					</g:cell>
+				</g:HorizontalPanel>
+			</g:VerticalPanel>
+			<g:HTML ui:field="addButton" styleName="tracking-add-button} icon-plus-sign-alt" title="Add"></g:HTML>
+			<g:HTML ui:field="settingsButton" styleName="tracking-config-button} icon-cogs" title="Settings"></g:HTML>
+		</g:FlowPanel>
+		<g:ScrollPanel styleName="tracking-list-scroll">
+			<g:VerticalPanel ui:field="trackingList" styleName="tracking-list">
+			
+			</g:VerticalPanel>
+		</g:ScrollPanel>
+	</g:FlowPanel>
+</ui:UiBinder> 
