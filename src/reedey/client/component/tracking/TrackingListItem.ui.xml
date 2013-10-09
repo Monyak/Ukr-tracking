@@ -3,6 +3,31 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style>
 	</ui:style>
-	<g:HTMLPanel>
-	</g:HTMLPanel>
+	<g:HorizontalPanel styleName="tracking-list-item">
+		<g:cell width="70%">
+			<g:VerticalPanel width="100%">
+				<g:cell height="auto">
+					<g:HTML ui:field="nameLabel" styleName="tracking-list-name"></g:HTML>
+				</g:cell>
+				<g:cell height="auto">
+					<g:FlowPanel ui:field="currentPanel" styleName="tracking-list-item-main">
+						<g:HTML ui:field="currentText" styleName="tracking-list-current"></g:HTML>
+						<g:HTML ui:field="lastChangedDate" styleName="tracking-list-date"></g:HTML>
+					</g:FlowPanel>
+				</g:cell>
+			</g:VerticalPanel>
+		</g:cell>
+		<g:cell width="30%">
+			<g:ScrollPanel width="100%" height="100%">
+				<g:VerticalPanel ui:field="historyList" styleName="tracking-history-item"></g:VerticalPanel>
+			</g:ScrollPanel>
+
+		</g:cell>
+		<g:cell width="2em"> 
+			<g:VerticalPanel styleName="tracking-control-panel" width="100%" height="100%">
+				<g:HTML ui:field="deleteButton" styleName="tracking-item-button icon-remove" title="Remove"></g:HTML>
+				<g:HTML ui:field="editButton" styleName="tracking-item-button icon-pencil" title="Edit"></g:HTML>
+			</g:VerticalPanel>
+		</g:cell>
+	</g:HorizontalPanel>
 </ui:UiBinder> 
