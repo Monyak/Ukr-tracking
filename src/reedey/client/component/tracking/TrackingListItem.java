@@ -60,6 +60,9 @@ public class TrackingListItem extends Composite {
 		currentText.setHTML(SafeHtmlUtils.fromString(item.getItems()[0].getText()));
 		lastChangedDate.setHTML(format.format(item.getItems()[0].getDate()));
 		content.addStyleName(item.getItems()[0].getStatus().getStyle());
+		for (int i = 0; i < item.getItems().length; i++) {
+		    historyList.add(new HistoryItemWidget(item.getItems()[i]));
+		}
 	}
 	
 	@UiHandler("deleteButton")

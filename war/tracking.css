@@ -88,8 +88,32 @@
 	font-size: 0.8em;
 }
 
+.tracking-history-scroll {
+	background-color: white;
+	border-left: 2px solid;
+	border-right: 2px solid;
+}
+
+.tracking-history-list {
+	
+}
+
 .tracking-history-item {
+	border-radius: 5px;
+}
+
+.tracking-history-wrapper {
+    padding: 1px;
+    margin: 4px;
+    background-color: black;
+    border-radius: 5px;
+}
+
+.tracking-history-label {
 	font-size: 0.8em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .tracking-control-panel {
