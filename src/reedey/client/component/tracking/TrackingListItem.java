@@ -1,6 +1,7 @@
 package reedey.client.component.tracking;
 
 import reedey.shared.tracking.entity.TrackingItem;
+import reedey.shared.tracking.entity.TrackingStatus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -45,6 +47,9 @@ public class TrackingListItem extends Composite {
 	HTML lastChangedDate;
 	
 	@UiField
+	ScrollPanel historyScrollPanel;
+	
+	@UiField
 	VerticalPanel historyList;
 	
 	@UiField
@@ -59,7 +64,10 @@ public class TrackingListItem extends Composite {
 		nameLabel.setHTML(SafeHtmlUtils.fromString(item.getName() != null ? item.getName() + " (" + item.getBarCode() + ")" : item.getBarCode()));
 		currentText.setHTML(SafeHtmlUtils.fromString(item.getItems()[0].getText()));
 		lastChangedDate.setHTML(format.format(item.getItems()[0].getDate()));
-		content.addStyleName(item.getItems()[0].getStatus().getStyle());
+		
+		TrackingStatus status = item.getItems()[0].getStatus();
+		content.addStyleName(status.getStyle(false));
+		historyScrollPanel.addStyleName(status.getStyle(true));
 		for (int i = 0; i < item.getItems().length; i++) {
 		    historyList.add(new HistoryItemWidget(item.getItems()[i]));
 		}

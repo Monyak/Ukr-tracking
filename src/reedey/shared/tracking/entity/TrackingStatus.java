@@ -10,7 +10,7 @@ public enum TrackingStatus {
 	TrackingStatus(String styleName) {
 		this.style = styleName;
 	}
-	public String getStyle() {
-		return style;
+	public String getStyle(boolean light) {
+		return style + (light ? "-light" : "");
 	}
 }

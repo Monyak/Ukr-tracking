@@ -26,8 +26,8 @@ public class HistoryItemWidget extends Composite {
 
     public HistoryItemWidget(HistoryItem item) {
         initWidget(uiBinder.createAndBindUi(this));
-        this.addStyleName(item.getStatus().getStyle());
-        label.setText(format.format(item.getDate()) + ": " + item.getText());
+        this.addStyleName(item.getStatus().getStyle(false));
+        label.setHTML("<b>" + format.format(item.getDate()) + "</b>: " + item.getText());
         label.setTitle(format.format(item.getDate()) + ": " + item.getText());
         label.setWidth(Window.getClientWidth() / 3 + "px");
     }

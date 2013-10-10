@@ -50,8 +50,11 @@ public class TrackingWidget extends Composite {
 		TrackingItem[] items = new TrackingItem[] {
 			new TrackingItem("RC12312314CH", "myItem", new HistoryItem[]{
 				new HistoryItem(new Date(), "Delivered very long message Delivered " +
-						"very long message Delivered very long message Delivered very " +
-						"long message Delivered very long message", TrackingStatus.DELIVERING),
+							"very long message Delivered very long message Delivered very " +
+							"long message Delivered very long message", TrackingStatus.DELIVERING),
+				new HistoryItem(new Date(), "Bla BlaDelivered very long message Delivered " +
+									"very long message Delivered very long message Delivered very " +
+									"long message Delivered very long message", TrackingStatus.PROCESSING),
 				new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*5), "Processing", TrackingStatus.PROCESSING),
 				new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*10), "Got", TrackingStatus.NONE)
 			}),

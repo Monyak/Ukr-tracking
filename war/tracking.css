@@ -81,25 +81,31 @@
 
 .tracking-list-current {
     font-size: 1em;
+    margin-right: 10px;
+    font-family: verdana,sans-serif;
 }
 
 .tracking-list-date {
 	text-align: right;
 	font-size: 0.8em;
+	margin-right: 10px;
+    font-family: verdana,sans-serif;
+    font-weight: 600;
 }
 
 .tracking-history-scroll {
-	background-color: white;
 	border-left: 2px solid;
 	border-right: 2px solid;
 }
 
 .tracking-history-list {
-	
+	margin: 5px;
 }
 
 .tracking-history-item {
 	border-radius: 5px;
+	margin-top: 5px;
+	padding: 2px 5px;
 }
 
 .tracking-history-wrapper {
@@ -114,6 +120,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+    font-family: verdana,sans-serif;
 }
 
 .tracking-control-panel {
@@ -139,6 +146,22 @@
 
 .tracking-grey {
 	background-color: #C3C3C3;
+}
+
+.tracking-red-light {
+	background-color: #c27373;
+}
+
+.tracking-green-light {
+	background-color: #76b173;
+}
+
+.tracking-yellow-light {
+	background-color: #dadd91;
+}
+
+.tracking-grey-light {
+	background-color: #8d8d8d;
 }
 
 
