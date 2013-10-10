@@ -14,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -27,6 +28,9 @@ public class TrackingListItem extends Composite {
 	}
 	
 	private static final DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
+	
+	@UiField
+	HorizontalPanel content;
 	
 	@UiField
 	HTML nameLabel;
@@ -52,10 +56,10 @@ public class TrackingListItem extends Composite {
 
 	public TrackingListItem(TrackingItem item) {
 		initWidget(uiBinder.createAndBindUi(this));
-		nameLabel.setHTML(SafeHtmlUtils.fromString(item.getName() != null ? item.getName() : item.getBarCode()));
+		nameLabel.setHTML(SafeHtmlUtils.fromString(item.getName() != null ? item.getName() + " (" + item.getBarCode() + ")" : item.getBarCode()));
 		currentText.setHTML(SafeHtmlUtils.fromString(item.getItems()[0].getText()));
 		lastChangedDate.setHTML(format.format(item.getItems()[0].getDate()));
-		currentPanel.addStyleName(item.getItems()[0].getStatus().getStyle());
+		content.addStyleName(item.getItems()[0].getStatus().getStyle());
 	}
 	
 	@UiHandler("deleteButton")

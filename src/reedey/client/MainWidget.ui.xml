@@ -2,12 +2,12 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'>  
 	<ui:style>
 	</ui:style>
-	<g:LayoutPanel styleName="container">
+	<g:LayoutPanel styleName="main-container">
 		<g:layer top="0" height="3em" left="0" right="0">
-			<g:HorizontalPanel styleName="header" ui:field="header"></g:HorizontalPanel>
+			<g:HorizontalPanel styleName="main-header" ui:field="header"></g:HorizontalPanel>
 		</g:layer>
 		<g:layer top="3em" bottom="0" left="0" right="0">
-			<g:SimplePanel styleName="content" ui:field="content">
+			<g:SimplePanel styleName="main-content" ui:field="content">
 				<g:HTML styleName="default-label">Select component</g:HTML>
 			</g:SimplePanel>
 		</g:layer>
