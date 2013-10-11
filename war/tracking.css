@@ -99,12 +99,12 @@
 }
 
 .tracking-history-list {
-	margin: 5px;
+	width:100%;
 }
 
 .tracking-history-item {
 	border-radius: 5px;
-	margin-top: 5px;
+	margin: 2px 5px;
 	padding: 2px 5px;
 }
 

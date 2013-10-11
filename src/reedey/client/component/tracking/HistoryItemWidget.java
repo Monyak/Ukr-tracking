@@ -3,6 +3,8 @@ package reedey.client.component.tracking;
 import reedey.shared.tracking.entity.HistoryItem;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -30,6 +32,15 @@ public class HistoryItemWidget extends Composite {
         label.setHTML("<b>" + format.format(item.getDate()) + "</b>: " + item.getText());
         label.setTitle(format.format(item.getDate()) + ": " + item.getText());
         label.setWidth(Window.getClientWidth() / 3 + "px");
+        Window.addResizeHandler(new ResizeHandler() {
+            
+            @Override
+            public void onResize(ResizeEvent event) {
+                label.setWidth(Window.getClientWidth() / 3 + "px");
+            }
+        });
     }
+    
+    
 
 }

@@ -27,6 +27,8 @@ public class MainWidget extends Composite {
 	public MainWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 		this.getElement().getStyle().clearPosition();
+
+        this.initComponents(EyeComponent.components);
 	}
 
 	public void initComponents(EyeComponent[] components) {

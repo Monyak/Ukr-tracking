@@ -1,6 +1,7 @@
 package reedey.client;
 
 import reedey.client.component.EyeComponent;
+import reedey.client.login.LoginScreen;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -27,9 +28,7 @@ public class ReEdey implements EntryPoint {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {
-				MainWidget widget = new MainWidget();
-				RootPanel.get().add(widget);
-				widget.initComponents(EyeComponent.components);
+				RootPanel.get().add(new LoginScreen());
 			}
 		});
 	}
