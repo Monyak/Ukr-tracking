@@ -26,10 +26,10 @@
 			</table>
 		</g:HTMLPanel>
 		<g:HorizontalPanel width="100%">
-			<g:CheckBox ui:field="register"></g:CheckBox>
+			<g:CheckBox ui:field="register" width="20px"></g:CheckBox>
 			<g:HTML styleName="login-register">Register</g:HTML>
 			<g:Button ui:field="button" text="Sign in" styleName="login-button"></g:Button>
 		</g:HorizontalPanel>
-
+		<g:HTML styleName="login-error" ui:field="error"></g:HTML>
 	</g:VerticalPanel>
 </ui:UiBinder> 

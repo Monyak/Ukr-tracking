@@ -1,4 +1,4 @@
-package reedey.client;
+package reedey.client.widgets;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

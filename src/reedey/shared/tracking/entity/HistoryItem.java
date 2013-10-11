@@ -1,8 +1,9 @@
 package reedey.shared.tracking.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class HistoryItem {
+public class HistoryItem implements Serializable {
 	private Date date;
 	private String text;
 	private TrackingStatus status;

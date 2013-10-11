@@ -1,5 +1,5 @@
 .login-container {
-    position: absolute;
+    margin: 10px;
 }
 
 .login-table {
@@ -11,13 +11,23 @@
 }
 
 .login-label {
-	
+	margin-bottom: 10px;
+	margin-right: 10px;
+	font-family: Verdana;
 }
 
 .login-button {
 	float: right;
+	font-family: Verdana;
 }
 
 .login-register {
 	display: inline-block;
+	font-family: Verdana;
+	vertical-align: middle;
+}
+
+.login-error {
+	color: red;
+	margin: 5px;
 }

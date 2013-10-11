@@ -1,7 +1,9 @@
 package reedey.shared.tracking.entity;
 
+import java.io.Serializable;
 
-public class TrackingItem {
+
+public class TrackingItem implements Serializable {
 	private String barCode;
 	private String name;
 	private HistoryItem[] items;

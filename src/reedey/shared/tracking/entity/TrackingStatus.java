@@ -1,6 +1,8 @@
 package reedey.shared.tracking.entity;
 
-public enum TrackingStatus {
+import java.io.Serializable;
+
+public enum TrackingStatus implements Serializable {
 	NONE("tracking-red"), 
 	PROCESSING("tracking-yellow"), 
 	DELIVERING("tracking-green"), 
