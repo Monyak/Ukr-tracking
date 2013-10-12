@@ -6,6 +6,7 @@ import reedey.shared.tracking.entity.User;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -47,7 +48,18 @@ public class ReEdey implements EntryPoint {
 							RootPanel.get().add(new LoginScreen());
 						} else {
 							AppContext.get().setUser(user);
-							RootPanel.get().add(new MainWidget());
+							GWT.runAsync(new RunAsyncCallback() {
+								@Override
+								public void onSuccess() {
+									RootPanel.get().add(new MainWidget());
+								}
+								
+								@Override
+								public void onFailure(Throwable reason) {
+									MessageBox.show("Error", "Internal server error");
+								}
+							});
+							
 						}
 					}
 				});

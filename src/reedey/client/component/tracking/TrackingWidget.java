@@ -1,10 +1,9 @@
 package reedey.client.component.tracking;
 
-import java.util.Date;
-
-import reedey.shared.tracking.entity.HistoryItem;
+import reedey.client.AppContext;
+import reedey.client.utils.AbstractAsyncCallback;
+import reedey.client.widgets.MessageBox;
 import reedey.shared.tracking.entity.TrackingItem;
-import reedey.shared.tracking.entity.TrackingStatus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -47,29 +46,37 @@ public class TrackingWidget extends Composite {
 	}
 
 	private void loadItems() {
-		TrackingItem[] items = new TrackingItem[] {
-			new TrackingItem("RC12312314CH", "myItem", new HistoryItem[]{
-				new HistoryItem(new Date(), "Delivered very long message Delivered " +
-							"very long message Delivered very long message Delivered very " +
-							"long message Delivered very long message", TrackingStatus.DELIVERING),
-				new HistoryItem(new Date(), "Bla BlaDelivered very long message Delivered " +
-									"very long message Delivered very long message Delivered very " +
-									"long message Delivered very long message", TrackingStatus.PROCESSING),
-				new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*5), "Processing", TrackingStatus.PROCESSING),
-				new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*10), "Got", TrackingStatus.NONE)
-			}),
-			new TrackingItem("RC12312314CH", null, new HistoryItem[]{
-					new HistoryItem(new Date(), "Processing", TrackingStatus.PROCESSING),
-					new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*7), "Got", TrackingStatus.NONE)
-			})
-		};
-		for (TrackingItem item : items) 
-			trackingList.add(new TrackingListItem(item));
+		AppContext.get().getTrackingService().getItems(
+				AppContext.get().getUser().getId(),
+				new AbstractAsyncCallback<TrackingItem[]>() {
+					@Override
+					public void onSuccess(TrackingItem[] items) {
+						for (TrackingItem item : items) 
+							trackingList.add(new TrackingListItem(item));
+					}
+				});
 	}
 
 	@UiHandler("addButton")
 	void onAddClick(ClickEvent e) {
-		Window.alert("Add!");
+		if (barCodeTextBox.getText().trim().isEmpty()) {
+			MessageBox.show("", "Bar code should not be empty");
+		} else {
+			AppContext.get().getTrackingService().addItem(
+					AppContext.get().getUser().getId(),
+					barCodeTextBox.getText().trim(),
+					nameTextBox.getText().trim().isEmpty() ? null : nameTextBox.getText().trim(),
+					new AbstractAsyncCallback<TrackingItem>() {
+						@Override
+						public void onSuccess(TrackingItem result) {
+							if (result == null) {
+								MessageBox.show("", "This item already exists");
+							} else {
+								trackingList.add(new TrackingListItem(result));
+							}
+						}
+					});
+		}
 	}
 	
 	@UiHandler("settingsButton")

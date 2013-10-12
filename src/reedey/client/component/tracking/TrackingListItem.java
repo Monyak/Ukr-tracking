@@ -1,5 +1,8 @@
 package reedey.client.component.tracking;
 
+import java.util.Date;
+
+import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
 import reedey.shared.tracking.entity.TrackingStatus;
 
@@ -62,13 +65,14 @@ public class TrackingListItem extends Composite {
 	public TrackingListItem(TrackingItem item) {
 		initWidget(uiBinder.createAndBindUi(this));
 		nameLabel.setHTML(SafeHtmlUtils.fromString(item.getName() != null ? item.getName() + " (" + item.getBarCode() + ")" : item.getBarCode()));
-		currentText.setHTML(SafeHtmlUtils.fromString(item.getItems()[0].getText()));
-		lastChangedDate.setHTML(format.format(item.getItems()[0].getDate()));
+		HistoryItem lastItem = item.getItems().length > 0 ? item.getItems()[0] : emptyHistoryItem();
+		currentText.setHTML(SafeHtmlUtils.fromString(lastItem.getText()));
+		lastChangedDate.setHTML(format.format(lastItem.getDate()));
 		
-		TrackingStatus status = item.getItems()[0].getStatus();
+		TrackingStatus status = lastItem.getStatus();
 		content.addStyleName(status.getStyle(false));
 		historyScrollPanel.addStyleName(status.getStyle(true));
-		for (int i = 0; i < item.getItems().length; i++) {
+		for (int i = 1; i < item.getItems().length; i++) {
 		    historyList.add(new HistoryItemWidget(item.getItems()[i]));
 		}
 	}
@@ -83,4 +87,7 @@ public class TrackingListItem extends Composite {
 		Window.alert("Edit!");
 	}
 
+	private static final HistoryItem emptyHistoryItem() {
+		return new HistoryItem(new Date(), "No information available for this item", TrackingStatus.NONE);
+	}
 }

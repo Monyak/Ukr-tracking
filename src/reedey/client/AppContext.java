@@ -1,31 +1,40 @@
 package reedey.client;
 
-
 import reedey.client.service.LoginService;
 import reedey.client.service.LoginServiceAsync;
+import reedey.client.service.TrackingService;
+import reedey.client.service.TrackingServiceAsync;
 import reedey.shared.tracking.entity.User;
 
 import com.google.gwt.core.client.GWT;
 
 public class AppContext {
-private static AppContext instance;
-	
+	private static AppContext instance;
+
 	private LoginServiceAsync loginService;
-	
+	private TrackingServiceAsync trackingService;
+
 	private User user;
-	
-	private AppContext() {}
-	
+
+	private AppContext() {
+	}
+
 	public static AppContext get() {
 		if (instance == null)
 			instance = new AppContext();
 		return instance;
 	}
-	
+
 	public LoginServiceAsync getLoginService() {
 		if (loginService == null)
 			loginService = GWT.create(LoginService.class);
 		return loginService;
+	}
+
+	public TrackingServiceAsync getTrackingService() {
+		if (trackingService == null)
+			trackingService = GWT.create(TrackingService.class);
+		return trackingService;
 	}
 
 	public User getUser() {

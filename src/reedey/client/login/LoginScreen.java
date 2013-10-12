@@ -2,7 +2,7 @@ package reedey.client.login;
 
 import reedey.client.AppContext;
 import reedey.client.MainWidget;
-import reedey.client.widgets.MessageBox;
+import reedey.client.utils.AbstractAsyncCallback;
 import reedey.shared.tracking.entity.User;
 
 import com.google.gwt.core.client.GWT;
@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -59,7 +58,7 @@ public class LoginScreen extends Composite {
         	AppContext.get().getLoginService().createUser(
         			login.getText().trim(), 
         			password.getText().trim(),
-        			new AsyncCallback<User>() {
+        			new AbstractAsyncCallback<User>() {
 						@Override
 						public void onSuccess(User user) {
 							if (user == null) {
@@ -70,17 +69,13 @@ public class LoginScreen extends Composite {
 								RootPanel.get().add(new MainWidget());
 							}
 						}
-						@Override
-						public void onFailure(Throwable caught) {
-							MessageBox.show("Error", "Internal server error");
-						}
 					});
         } else {
         	// login
         	AppContext.get().getLoginService().login(
         			login.getText().trim(), 
         			password.getText().trim(),
-        			new AsyncCallback<User>() {
+        			new AbstractAsyncCallback<User>() {
 						@Override
 						public void onSuccess(User user) {
 							if (user == null) {
@@ -90,10 +85,6 @@ public class LoginScreen extends Composite {
 								RootPanel.get().clear();
 								RootPanel.get().add(new MainWidget());
 							}
-						}
-						@Override
-						public void onFailure(Throwable caught) {
-							MessageBox.show("Error", "Internal server error");
 						}
 					});
         }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/cron/update?type=night</url>
+    <description>Night checks</description>
+    <schedule>every 6 hours</schedule>
+    <timezone>Europe/Kiev</timezone>
+  </cron>
+  <cron>
+    <url>/cron/update?type=day</url>
+    <description>Day checks</description>
+    <schedule>every 3 hours</schedule>
+    <timezone>Europe/Kiev</timezone>
+  </cron>
+</cronentries>

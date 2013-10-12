@@ -5,6 +5,10 @@
 	font-family: cursive;
 }
 
+.logout-button {
+	float: right;
+}
+
 .main-header {
 	width: 100%;
 	height: 100%;

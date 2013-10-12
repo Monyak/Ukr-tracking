@@ -1,5 +1,7 @@
 package reedey.server.impl;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -7,6 +9,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpSession;
 
 import reedey.client.service.LoginService;
+import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -24,9 +27,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class LoginServiceImpl extends RemoteServiceServlet implements
 		LoginService {
 
+	private static final long serialVersionUID = 7487435292987824639L;
+
+	public static final String USER_ATTR = "userobject";
+
 	private static final String USER_TABLE = "users";
-	private static final String USER_ATTR = "username";
-	private static final String USER_ATTR_ID = "userid";
 	private static final String USER_LOGIN = "login";
 	private static final String USER_PWD = "password";
 	private static final String USER_ID = "id";
@@ -34,17 +39,13 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public User loginFromSession() {
 		HttpSession session = getThreadLocalRequest().getSession();
-		String userName = (String)session.getAttribute(USER_ATTR);
-		if (userName == null)
-			return null;
-		return new User(userName, (long)session.getAttribute(USER_ATTR_ID));
+		return (User) session.getAttribute(USER_ATTR);
 	}
 
 	@Override
 	public User login(String login, String password) {
 		log("Login user: " + login);
 
-		// MessageDigest md = MessageDigest.getInstance("MD5");
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 
@@ -52,15 +53,14 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 				CompositeFilterOperator.AND, Arrays.<Filter> asList(
 						new FilterPredicate(USER_LOGIN, FilterOperator.EQUAL,
 								login.toLowerCase()), new FilterPredicate(
-								USER_PWD, FilterOperator.EQUAL, password))));
+								USER_PWD, FilterOperator.EQUAL, getPasswordHash(password)))));
 		List<Entity> result = datastore.prepare(query).asList(
 				FetchOptions.Builder.withDefaults());
 		if (!result.isEmpty()) {
 			Entity entity = result.get(0);
 			User user = new User((String) entity.getProperty(USER_LOGIN),
 					(long) entity.getProperty(USER_ID));
-			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user.getName());
-			getThreadLocalRequest().getSession().setAttribute(USER_ATTR_ID, user.getId());
+			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return user;
 		}
 		return null;
@@ -82,12 +82,11 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			Entity user = new Entity(USER_TABLE);
 			long id = UUID.randomUUID().getLeastSignificantBits();
 			user.setProperty(USER_LOGIN, login.toLowerCase());
-			user.setProperty(USER_PWD, password);
+			user.setProperty(USER_PWD, getPasswordHash(password));
 			user.setProperty(USER_ID, id);
 			datastore.put(user);
 			User created = new User(login, id);
-			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, created.getName());
-			getThreadLocalRequest().getSession().setAttribute(USER_ATTR_ID, created.getId());
+			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return created;
 		}
 		return null;
@@ -98,7 +97,16 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		log("Logout user");
 		HttpSession session = getThreadLocalRequest().getSession();
 		session.removeAttribute(USER_ATTR);
-		session.removeAttribute(USER_ATTR_ID);
 	}
 
+	private String getPasswordHash(String password) {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			log("Hash error", e);
+			throw new ServiceException("Login failed", e);
+		}
+		return new String(md.digest(password.getBytes()));
+	}
 }

@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class HistoryItem implements Serializable {
+
+	private static final long serialVersionUID = 161293930308551730L;
+	
 	private Date date;
 	private String text;
 	private TrackingStatus status;

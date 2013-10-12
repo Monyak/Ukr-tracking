@@ -1,6 +1,8 @@
 package reedey.client;
 
 import reedey.client.component.EyeComponent;
+import reedey.client.login.LoginScreen;
+import reedey.client.utils.AbstractAsyncCallback;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -10,6 +12,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -38,6 +41,19 @@ public class MainWidget extends Composite {
 			button.addClickHandler(new HeaderButtonHandler(cmp));
 			header.add(button);
 		}
+		Button button = new Button("Logout");
+		button.setStyleName("header-button logout-button");
+		button.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				AppContext.get().getLoginService().logout(AbstractAsyncCallback.VOID);
+				RootPanel.get().clear();
+				AppContext.get().setUser(null);
+				RootPanel.get().add(new LoginScreen());
+			}
+		});
+		header.add(button);
 	}
 	
 	private class HeaderButtonHandler implements ClickHandler {

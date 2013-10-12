@@ -3,6 +3,9 @@ package reedey.shared.tracking.entity;
 import java.io.Serializable;
 
 public class User implements Serializable {
+
+	private static final long serialVersionUID = 7506730626130713300L;
+
 	private String name;
 	private long id;
 
