@@ -9,4 +9,6 @@ public interface TrackingServiceAsync {
 	void getItems(long userId, AsyncCallback<TrackingItem[]> callback);
 
 	void addItem(long userId, String barcode, String name, AsyncCallback<TrackingItem> callback);
+	
+	void removeItem(long userId, String barcode, AsyncCallback<Void> callback);
 }

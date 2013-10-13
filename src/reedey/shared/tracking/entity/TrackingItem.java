@@ -1,20 +1,20 @@
 package reedey.shared.tracking.entity;
 
 import java.io.Serializable;
-
+import java.util.Arrays;
 
 public class TrackingItem implements Serializable {
 
 	private static final long serialVersionUID = -7143422317502796284L;
-	
+
 	private String barCode;
 	private String name;
 	private HistoryItem[] items;
 
 	public TrackingItem() {
-		
+
 	}
-	
+
 	public TrackingItem(String barCode, String name, HistoryItem[] items) {
 		this.barCode = barCode;
 		this.name = name;
@@ -82,4 +82,9 @@ public class TrackingItem implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "TrackingItem [barCode=" + barCode + ", name=" + name
+				+ ", items=" + Arrays.toString(items) + "]";
+	}
 }

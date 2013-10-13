@@ -25,7 +25,7 @@ public class ReEdey implements EntryPoint {
 				
 				@Override
 				public void onUncaughtException(Throwable e) {
-					MessageBox.show("Error", e.getMessage());
+					MessageBox.show(Msg.I.error(), e.getMessage());
 				}
 			});
 		}
@@ -38,7 +38,7 @@ public class ReEdey implements EntryPoint {
 					@Override
 					public void onFailure(Throwable caught) {
 						RootPanel.get().clear();
-						MessageBox.show("Error", "Internal server error");
+						MessageBox.show(Msg.I.error(), Msg.I.internalError());
 					}
 
 					@Override
@@ -56,7 +56,7 @@ public class ReEdey implements EntryPoint {
 								
 								@Override
 								public void onFailure(Throwable reason) {
-									MessageBox.show("Error", "Internal server error");
+									MessageBox.show(Msg.I.error(), Msg.I.internalError());
 								}
 							});
 							

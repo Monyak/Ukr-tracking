@@ -2,6 +2,9 @@ package reedey.client.component.tracking;
 
 import java.util.Date;
 
+import reedey.client.AppContext;
+import reedey.client.Msg;
+import reedey.client.utils.AbstractAsyncCallback;
 import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
 import reedey.shared.tracking.entity.TrackingStatus;
@@ -61,12 +64,17 @@ public class TrackingListItem extends Composite {
 	@UiField
 	HTML editButton;
 	
+	@UiField(provided=true)
+	Msg msg = Msg.I;
+	
+	private TrackingItem current;
 
 	public TrackingListItem(TrackingItem item) {
+		current = item;
 		initWidget(uiBinder.createAndBindUi(this));
 		nameLabel.setHTML(SafeHtmlUtils.fromString(item.getName() != null ? item.getName() + " (" + item.getBarCode() + ")" : item.getBarCode()));
 		HistoryItem lastItem = item.getItems().length > 0 ? item.getItems()[0] : emptyHistoryItem();
-		currentText.setHTML(SafeHtmlUtils.fromString(lastItem.getText()));
+		currentText.setHTML(lastItem.getText());
 		lastChangedDate.setHTML(format.format(lastItem.getDate()));
 		
 		TrackingStatus status = lastItem.getStatus();
@@ -79,12 +87,20 @@ public class TrackingListItem extends Composite {
 	
 	@UiHandler("deleteButton")
 	void onDeleteClick(ClickEvent e) {
-		Window.alert("Remove!");
+		AppContext.get().getTrackingService().removeItem(
+				AppContext.get().getUser().getId(), 
+				current.getBarCode(), 
+				new AbstractAsyncCallback<Void>() {
+					@Override
+					public void onSuccess(Void result) {
+						TrackingListItem.this.removeFromParent();
+					}
+				});
 	}
 	
 	@UiHandler("editButton")
 	void onEditClick(ClickEvent e) {
-		Window.alert("Edit!");
+		Window.alert("Not implemented yet!");
 	}
 
 	private static final HistoryItem emptyHistoryItem() {

@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-    xmlns:g='urn:import:com.google.gwt.user.client.ui'>  
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:with field='msg' type='reedey.client.Msg'/>  
 	<ui:style>
 	</ui:style>
 	<g:LayoutPanel styleName="main-container">
@@ -8,7 +9,7 @@
 		</g:layer>
 		<g:layer top="3em" bottom="0" left="0" right="0">
 			<g:SimplePanel styleName="main-content" ui:field="content">
-				<g:HTML styleName="default-label">Select component</g:HTML>
+				<g:HTML styleName="default-label">{msg.chooseComponent}</g:HTML>
 			</g:SimplePanel>
 		</g:layer>
 	</g:LayoutPanel>

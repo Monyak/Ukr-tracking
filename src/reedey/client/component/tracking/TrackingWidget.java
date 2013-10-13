@@ -1,6 +1,7 @@
 package reedey.client.component.tracking;
 
 import reedey.client.AppContext;
+import reedey.client.Msg;
 import reedey.client.utils.AbstractAsyncCallback;
 import reedey.client.widgets.MessageBox;
 import reedey.shared.tracking.entity.TrackingItem;
@@ -39,7 +40,10 @@ public class TrackingWidget extends Composite {
 	
 	@UiField
 	VerticalPanel trackingList;
-
+	
+	@UiField(provided=true)
+	Msg msg = Msg.I;
+	
 	public TrackingWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 		loadItems();
@@ -60,7 +64,7 @@ public class TrackingWidget extends Composite {
 	@UiHandler("addButton")
 	void onAddClick(ClickEvent e) {
 		if (barCodeTextBox.getText().trim().isEmpty()) {
-			MessageBox.show("", "Bar code should not be empty");
+			MessageBox.show("", msg.barcodeEmpty());
 		} else {
 			AppContext.get().getTrackingService().addItem(
 					AppContext.get().getUser().getId(),
@@ -70,9 +74,11 @@ public class TrackingWidget extends Composite {
 						@Override
 						public void onSuccess(TrackingItem result) {
 							if (result == null) {
-								MessageBox.show("", "This item already exists");
+								MessageBox.show("", msg.itemExist());
 							} else {
-								trackingList.add(new TrackingListItem(result));
+								if (trackingList.getWidgetCount() > 0)
+									trackingList.insert(new TrackingListItem(result), 0);
+								else trackingList.add(new TrackingListItem(result));
 							}
 						}
 					});
@@ -81,7 +87,7 @@ public class TrackingWidget extends Composite {
 	
 	@UiHandler("settingsButton")
 	void onSettingsClick(ClickEvent e) {
-		Window.alert("Settings!");
+		Window.alert("Not implemented yet!");
 	}
 
 }

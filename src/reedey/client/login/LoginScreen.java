@@ -2,6 +2,7 @@ package reedey.client.login;
 
 import reedey.client.AppContext;
 import reedey.client.MainWidget;
+import reedey.client.Msg;
 import reedey.client.utils.AbstractAsyncCallback;
 import reedey.shared.tracking.entity.User;
 
@@ -41,7 +42,8 @@ public class LoginScreen extends Composite {
     @UiField
     HTML error;
     
-    
+    @UiField(provided=true)
+	Msg msg = Msg.I;
 
     public LoginScreen() {
         initWidget(uiBinder.createAndBindUi(this));
@@ -62,7 +64,7 @@ public class LoginScreen extends Composite {
 						@Override
 						public void onSuccess(User user) {
 							if (user == null) {
-								showError("User with this login already exists.");
+								showError(msg.userExists());
 							} else {
 								AppContext.get().setUser(user);
 								RootPanel.get().clear();
@@ -79,7 +81,7 @@ public class LoginScreen extends Composite {
 						@Override
 						public void onSuccess(User user) {
 							if (user == null) {
-								showError("Invalid username or password.");
+								showError(msg.invalidLogin());
 							} else {
 								AppContext.get().setUser(user);
 								RootPanel.get().clear();
@@ -92,7 +94,7 @@ public class LoginScreen extends Composite {
     
     private boolean validateFields() {
     	if (login.getText().trim().isEmpty() || password.getText().trim().isEmpty()) {
-    		showError("Login or password should not be blank!");
+    		showError(msg.loginNotBlank());
     		return true;
     	}
     	return false;

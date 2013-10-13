@@ -3,7 +3,7 @@ package reedey.shared.tracking.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-public class HistoryItem implements Serializable {
+public class HistoryItem implements Serializable, Comparable<HistoryItem> {
 
 	private static final long serialVersionUID = 161293930308551730L;
 	
@@ -77,6 +77,17 @@ public class HistoryItem implements Serializable {
 		} else if (!text.equals(other.text))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(HistoryItem o) {
+		return this.date.compareTo(o.date);
+	}
+
+	@Override
+	public String toString() {
+		return "HistoryItem [date=" + date + ", text=" + text + ", status="
+				+ status + "]";
 	}
 
 }

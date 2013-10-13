@@ -1,5 +1,6 @@
 package reedey.client.component.tracking;
 
+import reedey.client.Msg;
 import reedey.shared.tracking.entity.HistoryItem;
 
 import com.google.gwt.core.client.GWT;
@@ -25,7 +26,10 @@ public class HistoryItemWidget extends Composite {
     
     @UiField
     HTML label;
-
+	
+	@UiField(provided=true)
+	Msg msg = Msg.I;
+	
     public HistoryItemWidget(HistoryItem item) {
         initWidget(uiBinder.createAndBindUi(this));
         this.addStyleName(item.getStatus().getStyle(false));

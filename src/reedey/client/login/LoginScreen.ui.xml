@@ -1,6 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:with field='msg' type='reedey.client.Msg'/>  
 	<ui:style>
 		
 	</ui:style>
@@ -9,7 +10,7 @@
 			<table>
 				<tr>
 					<td>
-						<g:HTML styleName="login-label">Login:</g:HTML>
+						<g:HTML styleName="login-label" text="{msg.login}"></g:HTML>
 					</td>
 					<td>
 						<g:TextBox ui:field="login" styleName="login-input"></g:TextBox>
@@ -17,7 +18,7 @@
 				</tr>
 				<tr>
 					<td>
-						<g:HTML styleName="login-label">Password:</g:HTML>
+						<g:HTML styleName="login-label" text="{msg.password}"></g:HTML>
 					</td>
 					<td>
 						<g:PasswordTextBox ui:field="password" styleName="login-input"></g:PasswordTextBox>
@@ -27,8 +28,8 @@
 		</g:HTMLPanel>
 		<g:HorizontalPanel width="100%">
 			<g:CheckBox ui:field="register" width="20px"></g:CheckBox>
-			<g:HTML styleName="login-register">Register</g:HTML>
-			<g:Button ui:field="button" text="Sign in" styleName="login-button"></g:Button>
+			<g:HTML styleName="login-register" text="{msg.register}"></g:HTML>
+			<g:Button ui:field="button" text="{msg.signin}" styleName="login-button"></g:Button>
 		</g:HorizontalPanel>
 		<g:HTML styleName="login-error" ui:field="error"></g:HTML>
 	</g:VerticalPanel>

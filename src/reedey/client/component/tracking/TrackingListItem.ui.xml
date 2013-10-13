@@ -1,6 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:with field='msg' type='reedey.client.Msg'/>  
 	<ui:style>
 	</ui:style>
 	<g:HTMLPanel styleName="tracking-item-wrapper">
@@ -25,8 +26,8 @@
 			</g:cell>
 			<g:cell width="2em"> 
 				<g:VerticalPanel styleName="tracking-control-panel" width="100%">
-					<g:HTML ui:field="deleteButton" styleName="tracking-item-button icon-remove" title="Remove"></g:HTML>
-					<g:HTML ui:field="editButton" styleName="tracking-item-button icon-pencil" title="Edit"></g:HTML>
+					<g:HTML ui:field="deleteButton" styleName="tracking-item-button icon-remove" title="{msg.remove}"></g:HTML>
+					<g:HTML ui:field="editButton" styleName="tracking-item-button icon-pencil" title="{msg.edit}"></g:HTML>
 				</g:VerticalPanel>
 			</g:cell>
 		</g:HorizontalPanel>

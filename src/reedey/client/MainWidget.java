@@ -27,6 +27,9 @@ public class MainWidget extends Composite {
 	@UiField
 	SimplePanel content;
 	
+	@UiField(provided=true)
+	Msg msg = Msg.I;
+	
 	public MainWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
 		this.getElement().getStyle().clearPosition();
@@ -41,7 +44,7 @@ public class MainWidget extends Composite {
 			button.addClickHandler(new HeaderButtonHandler(cmp));
 			header.add(button);
 		}
-		Button button = new Button("Logout");
+		Button button = new Button(Msg.I.logout());
 		button.setStyleName("header-button logout-button");
 		button.addClickHandler(new ClickHandler() {
 			
@@ -54,6 +57,8 @@ public class MainWidget extends Composite {
 			}
 		});
 		header.add(button);
+		if (components.length == 1)
+			content.setWidget(components[0].getWidget());
 	}
 	
 	private class HeaderButtonHandler implements ClickHandler {

@@ -1,5 +1,6 @@
 package reedey.client.utils;
 
+import reedey.client.Msg;
 import reedey.client.login.LoginScreen;
 import reedey.client.widgets.MessageBox;
 import reedey.shared.exceptions.SessionExpiredException;
@@ -19,7 +20,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T> {
 	@Override
 	public void onFailure(Throwable caught) {
 		if (caught instanceof SessionExpiredException) {
-			MessageBox.show("Error", "Session expired", new ClickHandler() {
+			MessageBox.show(Msg.I.error(), "Session expired", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
 					RootPanel.get().clear();
@@ -28,8 +29,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T> {
 			});
 		} else {
 			String errorMessage = errorMessage();
-			MessageBox.show("Error", errorMessage != null ? errorMessage
-					: "Internal server error <br/>" + caught.getMessage());
+			MessageBox.show(Msg.I.error(), errorMessage != null ? errorMessage
+					: Msg.I.internalError() + "." + caught.getMessage());
 		}
 	}
 	

@@ -33,7 +33,11 @@ public class EMSAdapter {
 		int index2 = html.indexOf(SEARCH_KEY, index1 + 1);
 		if (index1 == -1 || index2 == -1)
 			throw new ServiceException("Cannot parse response");
-		return html.substring(index1 + SEARCH_KEY.length(), index2);
+		String result = html.substring(index1 + SEARCH_KEY.length(), index2);
+		result = result.replaceAll("\t", "");
+		result = result.replaceAll("\n", "");
+		result = result.replaceAll("\r", "");
+		return result;
 	}
 	
 	private String requestHttp(String urlInput) throws IOException {

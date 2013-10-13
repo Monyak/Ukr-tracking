@@ -2,6 +2,7 @@ package reedey.server.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import reedey.client.service.TrackingService;
 import reedey.server.tracking.EMSAdapter;
+import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
 import reedey.shared.tracking.entity.TrackingStatus;
@@ -23,7 +25,6 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class TrackingServiceImpl extends RemoteServiceServlet implements TrackingService {
@@ -43,23 +44,6 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	
 	@Override
 	public TrackingItem[] getItems(long userId) {
-		/*TrackingItem[] items = new TrackingItem[] {
-				new TrackingItem("RC12312314CH", "myItem", new HistoryItem[]{
-					new HistoryItem(new Date(), "Delivered very long message Delivered " +
-								"very long message Delivered very long message Delivered very " +
-								"long message Delivered very long message", TrackingStatus.DELIVERING),
-					new HistoryItem(new Date(), "Bla BlaDelivered very long message Delivered " +
-										"very long message Delivered very long message Delivered very " +
-										"long message Delivered very long message", TrackingStatus.PROCESSING),
-					new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*5), "Processing", TrackingStatus.PROCESSING),
-					new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*10), "Got", TrackingStatus.NONE)
-				}),
-				new TrackingItem("RC12312314CH", null, new HistoryItem[]{
-						new HistoryItem(new Date(), "Processing", TrackingStatus.PROCESSING),
-						new HistoryItem(new Date(new Date().getTime() - 24*60*60*1000*7), "Got", TrackingStatus.NONE)
-				})
-			};
-		return items;*/
 		log("Requesting items for user " + userId);
 		
 		DatastoreService datastore = DatastoreServiceFactory
@@ -81,6 +65,20 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 			item.setItems(getHistoryItems(item.getBarCode()));
 			result[i] = item;
 		}
+		Arrays.sort(result, new Comparator<TrackingItem>() {
+			@Override
+			public int compare(TrackingItem o1, TrackingItem o2) {
+				Date d1, d2;
+				if (o1.getItems().length == 0)
+					d1 = new Date(0);
+				else d1 = o1.getItems()[0].getDate();
+				if (o2.getItems().length == 0)
+					d2 = new Date(0);
+				else d2 = o2.getItems()[0].getDate();
+				return d1.compareTo(d2);
+			}
+		});
+		//log(Arrays.toString(result));
 		return result;
 	}
 
@@ -113,15 +111,34 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		return item;
 	}
 	
+	@Override
+	public void removeItem(long userId, String barcode) {
+		log("Remove item " + barcode + " for user " + userId);
+		barcode = barcode.toUpperCase();
+		
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		
+		Query query = new Query(USER_ITEM_TABLE).setFilter(new CompositeFilter(
+				CompositeFilterOperator.AND, Arrays.<Filter> asList(
+						new FilterPredicate(USER_ID, FilterOperator.EQUAL,
+								userId), new FilterPredicate(
+								BARCODE, FilterOperator.EQUAL, barcode))));
+		List<Entity> result = datastore.prepare(query)
+				.asList(FetchOptions.Builder.withDefaults());
+		if (result.isEmpty())
+			throw new ServiceException("Cannot find item " + barcode + " for user " + userId);
+		datastore.delete(result.get(0).getKey());
+	}
+	
 	private HistoryItem[] getHistoryItems(String barcode) {
 		log("Get history items for " + barcode);
 		barcode = barcode.toUpperCase();
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 
-		Query query = new Query(USER_ITEM_TABLE).setFilter(
-				new Query.FilterPredicate(BARCODE, FilterOperator.EQUAL, barcode))
-				.addSort(DATE, SortDirection.DESCENDING);
+		Query query = new Query(HISTORY_ITEM_TABLE).setFilter(
+				new Query.FilterPredicate(BARCODE, FilterOperator.EQUAL, barcode));
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
@@ -129,6 +146,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		HistoryItem[] items = new HistoryItem[result.size()];
 		for (int i = 0; i < result.size(); i++)
 			items[i] = extractHistoryItem(result.get(i));
+		Arrays.sort(items);
 		return items;
 	}
 	
@@ -159,8 +177,10 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 				.asList(FetchOptions.Builder.withDefaults());
 		if (!result.isEmpty())
 			return extractHistoryItem(result.get(0));
+		log("Creating new history item for " + barcode);
 		HistoryItem item = new HistoryItem(new Date(), message, getTrackingStatus(message));
 		Entity entity = new Entity(HISTORY_ITEM_TABLE);
+		entity.setProperty(BARCODE, barcode);
 		entity.setProperty(DATE, item.getDate());
 		entity.setProperty(MESSAGE, item.getText());
 		datastore.put(entity);
@@ -176,7 +196,13 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 	
 	private TrackingStatus getTrackingStatus(String message) {
-		return TrackingStatus.NONE;
+		if (message.contains("тому що не зареєстровані в системі"))
+			return TrackingStatus.NONE;
+		if (message.contains("вручене адресату (одержувачу) особисто"))
+			return TrackingStatus.DELIVERED;
+		//if (message.contains(""))
+		//	return TrackingStatus.DELIVERING;
+		return TrackingStatus.PROCESSING;
 	}
 
 	public void updateItems() {
