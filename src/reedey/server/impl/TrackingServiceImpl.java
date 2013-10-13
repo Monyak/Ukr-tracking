@@ -75,7 +75,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 				if (o2.getItems().length == 0)
 					d2 = new Date(0);
 				else d2 = o2.getItems()[0].getDate();
-				return d1.compareTo(d2);
+				return -d1.compareTo(d2);
 			}
 		});
 		//log(Arrays.toString(result));

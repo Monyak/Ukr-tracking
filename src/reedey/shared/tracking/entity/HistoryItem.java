@@ -81,7 +81,7 @@ public class HistoryItem implements Serializable, Comparable<HistoryItem> {
 
 	@Override
 	public int compareTo(HistoryItem o) {
-		return this.date.compareTo(o.date);
+		return -this.date.compareTo(o.date);
 	}
 
 	@Override
