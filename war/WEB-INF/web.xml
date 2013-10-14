@@ -41,6 +41,16 @@
     <url-pattern>/reedey/tracking</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>mailServlet</servlet-name>
+    <servlet-class>reedey.server.impl.MailServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>cronServlet</servlet-name>
+    <url-pattern>/reedey/mail</url-pattern>
+  </servlet-mapping>
+  
   <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>reedey.server.filters.EncodingFilter</filter-class>

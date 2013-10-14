@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
+import static reedey.server.impl.DatabaseConstants.*;
+
 import reedey.client.service.LoginService;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.User;
@@ -29,12 +31,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 
 	private static final long serialVersionUID = 7487435292987824639L;
 
-	public static final String USER_ATTR = "userobject";
-
-	private static final String USER_TABLE = "users";
-	private static final String USER_LOGIN = "login";
-	private static final String USER_PWD = "password";
-	private static final String USER_ID = "id";
+	
 
 	@Override
 	public User loginFromSession() {
@@ -59,7 +56,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		if (!result.isEmpty()) {
 			Entity entity = result.get(0);
 			User user = new User((String) entity.getProperty(USER_LOGIN),
-					(long) entity.getProperty(USER_ID));
+					(long) entity.getProperty(USER_ID2));
 			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return user;
 		}
@@ -83,7 +80,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			long id = UUID.randomUUID().getLeastSignificantBits();
 			user.setProperty(USER_LOGIN, login.toLowerCase());
 			user.setProperty(USER_PWD, getPasswordHash(password));
-			user.setProperty(USER_ID, id);
+			user.setProperty(USER_ID2, id);
 			datastore.put(user);
 			User created = new User(login, id);
 			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);

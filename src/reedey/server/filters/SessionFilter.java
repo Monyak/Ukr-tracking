@@ -11,7 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import reedey.server.impl.LoginServiceImpl;
+import reedey.server.impl.DatabaseConstants;
 import reedey.shared.exceptions.SessionExpiredException;
 
 public class SessionFilter implements Filter {
@@ -21,7 +21,7 @@ public class SessionFilter implements Filter {
 
     	HttpServletRequest req = (HttpServletRequest) request;
         HttpSession session = req.getSession();
-        if (session.getAttribute(LoginServiceImpl.USER_ATTR) == null)
+        if (session.getAttribute(DatabaseConstants.USER_ATTR) == null)
         	throw new SessionExpiredException();
         chain.doFilter(request, response);
     }

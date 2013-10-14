@@ -27,18 +27,13 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+import static reedey.server.impl.DatabaseConstants.*;
+
 public class TrackingServiceImpl extends RemoteServiceServlet implements TrackingService {
 
 	private static final long serialVersionUID = -8002177620880133394L;
 
-	private static final String USER_ITEM_TABLE = "UserTracking";
-	private static final String HISTORY_ITEM_TABLE = "Tracking";
-
-	private static final String USER_ID = "user_id";
-	private static final String BARCODE = "barcode";
-	private static final String NAME = "name";
-	private static final String MESSAGE = "message";
-	private static final String DATE = "tracking_date";
+	
 	
 	private static final EMSAdapter adapter = new EMSAdapter();
 	
