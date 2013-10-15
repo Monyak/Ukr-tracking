@@ -83,7 +83,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			user.setProperty(USER_ID2, id);
 			datastore.put(user);
 			User created = new User(login, id);
-			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
+			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, created);
 			return created;
 		}
 		return null;
