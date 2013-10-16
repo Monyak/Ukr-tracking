@@ -13,22 +13,17 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import reedey.client.service.MailService;
+import reedey.server.tracking.Mailer;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.exceptions.SessionExpiredException;
 import reedey.shared.tracking.entity.User;
@@ -70,6 +65,7 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 		} catch (NumberFormatException e) {
 			log("Error while parsing token", e);
 			resp.getWriter().write("Invalid token");
+			resp.getWriter().close();
 			return;
 		}
 		try {
@@ -77,6 +73,7 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 		} catch (IllegalArgumentException e) {
 			log("Expired token", e);
 			resp.getWriter().write("Invalid token");
+			resp.getWriter().close();
 			return;
 		}
 	}
@@ -140,29 +137,19 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 	}
 
 	private void sendTokenMail(String userName, String email, long token) {
-		Properties props = new Properties();
-		Session session = Session.getDefaultInstance(props, null);
-
-		String msgBody = "Click next link to activate your email: <br/> "
+		String msgBody = "Нажмите на ссылку для активации вашей почты (аккаунт - "
+				+ userName + "): <br/> "
 				+ "<a href=\"" + generateLink(token) + "\">"
 				+ generateLink(token) + "</a>";
-
 		try {
-			Message msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress("noreply@reedey.appspot.com",
-					"Red Eye"));
-			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
-					email, userName));
-			msg.setSubject("Your Example.com account has been activated");
-			msg.setText(msgBody);
-			Transport.send(msg);
-
+			new Mailer().sendMail(email, userName, "Активация почты", msgBody);
 		} catch (AddressException e) {
 			// throw new ServiceException(e);
+			log("Wrong adress", e);
 		} catch (MessagingException e) {
-			// throw new ServiceException(e);
+			log("Error occured while sending email", e);
 		} catch (Exception e) {
-			log("Error occured while sending message", e);
+			log("Error occured while sending email", e);
 			throw new ServiceException(e);
 		}
 	}

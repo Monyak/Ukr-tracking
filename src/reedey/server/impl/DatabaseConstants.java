@@ -21,4 +21,6 @@ public interface DatabaseConstants {
 	String EMAIL = "email";
 	String TOKEN_ID = "token_id";
 	String TOKEN_DATE = "token_date";
+	
+	String EMAIL_FLAGS = "email_flags";
 }

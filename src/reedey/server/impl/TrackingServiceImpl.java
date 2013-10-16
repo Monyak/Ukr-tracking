@@ -1,5 +1,18 @@
 package reedey.server.impl;
 
+import static reedey.server.impl.DatabaseConstants.BARCODE;
+import static reedey.server.impl.DatabaseConstants.DATE;
+import static reedey.server.impl.DatabaseConstants.EMAIL;
+import static reedey.server.impl.DatabaseConstants.EMAIL_FLAGS;
+import static reedey.server.impl.DatabaseConstants.HISTORY_ITEM_TABLE;
+import static reedey.server.impl.DatabaseConstants.MESSAGE;
+import static reedey.server.impl.DatabaseConstants.NAME;
+import static reedey.server.impl.DatabaseConstants.USER_ATTR;
+import static reedey.server.impl.DatabaseConstants.USER_ID;
+import static reedey.server.impl.DatabaseConstants.USER_ID2;
+import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
+import static reedey.server.impl.DatabaseConstants.USER_TABLE;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -8,12 +21,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import javax.servlet.http.HttpSession;
+
 import reedey.client.service.TrackingService;
 import reedey.server.tracking.EMSAdapter;
+import reedey.server.tracking.Mailer;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
 import reedey.shared.tracking.entity.TrackingStatus;
+import reedey.shared.tracking.entity.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -27,14 +46,10 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import static reedey.server.impl.DatabaseConstants.*;
-
 public class TrackingServiceImpl extends RemoteServiceServlet implements TrackingService {
 
 	private static final long serialVersionUID = -8002177620880133394L;
 
-	
-	
 	private static final EMSAdapter adapter = new EMSAdapter();
 	
 	@Override
@@ -180,10 +195,11 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		entity.setProperty(MESSAGE, item.getText());
 		datastore.put(entity);
 		
+		checkForNotification(item, barcode);
 		
 		return item;
 	}
-	
+
 	private HistoryItem extractHistoryItem(Entity entity) {
 		return new HistoryItem((Date)entity.getProperty(DATE),
 				(String)entity.getProperty(MESSAGE),
@@ -226,6 +242,54 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 			}
 		}
 	}
-	
+
+	private void checkForNotification(HistoryItem item, String barcode) {
+		HttpSession session = getThreadLocalRequest().getSession();
+		User user = (User) session.getAttribute(USER_ATTR);
+		
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+
+		Query query = new Query(USER_TABLE).setFilter(
+				new Query.FilterPredicate(USER_ID2, FilterOperator.EQUAL, user.getId()));
+		List<Entity> result = datastore.prepare(query)
+				.asList(FetchOptions.Builder.withDefaults());
+		if (result.isEmpty())
+			throw new ServiceException("Invalid user " + user);
+		String mail = (String)result.get(0).getProperty(EMAIL);
+		if (mail == null)
+			return;
+		Integer flags = (Integer)result.get(0).getProperty(EMAIL_FLAGS);
+		if (flags == null)
+			return;
+		log("Check item for flags(" + flags + "): " + item);
+		if (((1 << item.getStatus().ordinal()) & flags) > 0) {
+			log("Sending email");
+			Query nameQuery = new Query(USER_ITEM_TABLE).setFilter(new CompositeFilter(
+					CompositeFilterOperator.AND, Arrays.<Filter> asList(
+							new FilterPredicate(BARCODE, FilterOperator.EQUAL,
+									barcode.toUpperCase()), new FilterPredicate(
+									USER_ID, FilterOperator.EQUAL, user.getId()))));
+			List<Entity> items = datastore.prepare(nameQuery)
+					.asList(FetchOptions.Builder.withDefaults());
+			if (items.isEmpty())
+				throw new ServiceException("Invalid barcode " + barcode + " for user " + user);
+			String name = (String)items.get(0).getProperty(NAME);
+			if (name == null)
+				name = barcode;
+			try {
+				new Mailer().sendMail(mail, user.getName(), "Состояние заказа " + name + " изменилось!", 
+						"Текущее состояние заказа :<br/>" + item.getText());
+			} catch (AddressException e) {
+				// throw new ServiceException(e);
+				log("Wrong adress", e);
+			} catch (MessagingException e) {
+				log("Error occured while sending email", e);
+			} catch (Exception e) {
+				log("Error occured while sending email", e);
+				throw new ServiceException(e);
+			}
+		}
+	}
 
 }
