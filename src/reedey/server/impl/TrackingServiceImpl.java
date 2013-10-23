@@ -7,6 +7,7 @@ import static reedey.server.impl.DatabaseConstants.EMAIL_FLAGS;
 import static reedey.server.impl.DatabaseConstants.HISTORY_ITEM_TABLE;
 import static reedey.server.impl.DatabaseConstants.MESSAGE;
 import static reedey.server.impl.DatabaseConstants.NAME;
+import static reedey.server.impl.DatabaseConstants.USER_ATTR;
 import static reedey.server.impl.DatabaseConstants.USER_ID;
 import static reedey.server.impl.DatabaseConstants.USER_ID2;
 import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
@@ -293,7 +294,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 	
 	private long getUserId() {
-		User user = (User) getThreadLocalRequest().getSession();
+		User user = (User) getThreadLocalRequest().getSession().getAttribute(USER_ATTR);
 		if (user != null)
 			return user.getId();
 		return 0;
