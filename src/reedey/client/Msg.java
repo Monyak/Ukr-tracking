@@ -66,4 +66,16 @@ public interface Msg extends Messages {
 	
 	@DefaultMessage("This item already exists")
 	String itemExist();
+	
+	@DefaultMessage("Save new e-mail")
+	String saveMail();
+	
+	@DefaultMessage("Confirmation message was sent. Please check your e-mail.")
+	String confirmationMessageSent();
+	
+	@DefaultMessage("Your e-mail address for notifications")
+	String yourMail();
+
+	@DefaultMessage("E-mail should not be empty")
+	String mailEmpty();
 }

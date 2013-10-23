@@ -6,9 +6,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface TrackingServiceAsync {
 	
-	void getItems(long userId, AsyncCallback<TrackingItem[]> callback);
+	void getItems(AsyncCallback<TrackingItem[]> callback);
 
-	void addItem(long userId, String barcode, String name, AsyncCallback<TrackingItem> callback);
+	void addItem(String barcode, String name, AsyncCallback<TrackingItem> callback);
 	
-	void removeItem(long userId, String barcode, AsyncCallback<Void> callback);
+	void removeItem(String barcode, AsyncCallback<Void> callback);
+	
+	void updateNotificationFlags(int flags, AsyncCallback<Void> callback);
 }

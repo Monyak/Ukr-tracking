@@ -88,7 +88,6 @@ public class TrackingListItem extends Composite {
 	@UiHandler("deleteButton")
 	void onDeleteClick(ClickEvent e) {
 		AppContext.get().getTrackingService().removeItem(
-				AppContext.get().getUser().getId(), 
 				current.getBarCode(), 
 				new AbstractAsyncCallback<Void>() {
 					@Override

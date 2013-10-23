@@ -7,7 +7,6 @@ import static reedey.server.impl.DatabaseConstants.EMAIL_FLAGS;
 import static reedey.server.impl.DatabaseConstants.HISTORY_ITEM_TABLE;
 import static reedey.server.impl.DatabaseConstants.MESSAGE;
 import static reedey.server.impl.DatabaseConstants.NAME;
-import static reedey.server.impl.DatabaseConstants.USER_ATTR;
 import static reedey.server.impl.DatabaseConstants.USER_ID;
 import static reedey.server.impl.DatabaseConstants.USER_ID2;
 import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
@@ -23,7 +22,6 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
-import javax.servlet.http.HttpSession;
 
 import reedey.client.service.TrackingService;
 import reedey.server.tracking.EMSAdapter;
@@ -53,7 +51,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	private static final EMSAdapter adapter = new EMSAdapter();
 	
 	@Override
-	public TrackingItem[] getItems(long userId) {
+	public TrackingItem[] getItems() {
+		long userId = getUserId();
 		log("Requesting items for user " + userId);
 		
 		DatastoreService datastore = DatastoreServiceFactory
@@ -93,7 +92,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 
 	@Override
-	public TrackingItem addItem(long userId, String barcode, String name) {
+	public TrackingItem addItem(String barcode, String name) {
+		long userId = getUserId();
 		log("Add item " + barcode + " for user " + userId);
 		barcode = barcode.toUpperCase();
 		
@@ -122,7 +122,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 	
 	@Override
-	public void removeItem(long userId, String barcode) {
+	public void removeItem(String barcode) {
+		long userId = getUserId();
 		log("Remove item " + barcode + " for user " + userId);
 		barcode = barcode.toUpperCase();
 		
@@ -244,18 +245,17 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 
 	private void checkForNotification(HistoryItem item, String barcode) {
-		HttpSession session = getThreadLocalRequest().getSession();
-		User user = (User) session.getAttribute(USER_ATTR);
+		long userId = getUserId();
 		
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 
 		Query query = new Query(USER_TABLE).setFilter(
-				new Query.FilterPredicate(USER_ID2, FilterOperator.EQUAL, user.getId()));
+				new Query.FilterPredicate(USER_ID2, FilterOperator.EQUAL, userId));
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("Invalid user " + user);
+			throw new ServiceException("Invalid user " + userId);
 		String mail = (String)result.get(0).getProperty(EMAIL);
 		if (mail == null)
 			return;
@@ -269,17 +269,17 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 					CompositeFilterOperator.AND, Arrays.<Filter> asList(
 							new FilterPredicate(BARCODE, FilterOperator.EQUAL,
 									barcode.toUpperCase()), new FilterPredicate(
-									USER_ID, FilterOperator.EQUAL, user.getId()))));
+									USER_ID, FilterOperator.EQUAL, userId))));
 			List<Entity> items = datastore.prepare(nameQuery)
 					.asList(FetchOptions.Builder.withDefaults());
 			if (items.isEmpty())
-				throw new ServiceException("Invalid barcode " + barcode + " for user " + user);
+				throw new ServiceException("Invalid barcode " + barcode + " for user " + userId);
 			String name = (String)items.get(0).getProperty(NAME);
 			if (name == null)
 				name = barcode;
 			try {
-				new Mailer().sendMail(mail, user.getName(), "Состояние заказа " + name + " изменилось!", 
-						"Текущее состояние заказа :<br/>" + item.getText());
+				new Mailer().sendMail(mail, "", "Order state " + name + " has been changed!", 
+						"Current order state :<br/>" + item.getText());
 			} catch (AddressException e) {
 				// throw new ServiceException(e);
 				log("Wrong adress", e);
@@ -290,6 +290,32 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 				throw new ServiceException(e);
 			}
 		}
+	}
+	
+	private long getUserId() {
+		User user = (User) getThreadLocalRequest().getSession();
+		if (user != null)
+			return user.getId();
+		return 0;
+	}
+
+	@Override
+	public void updateNotificationFlags(int flags) {
+		long userId = getUserId();
+		log("Updating flags for user=" + userId + ", flags=" + flags);
+		
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+		
+		Query query = new Query(USER_TABLE).setFilter(
+				new Query.FilterPredicate(USER_ID2, FilterOperator.EQUAL, userId));
+		List<Entity> result = datastore.prepare(query)
+				.asList(FetchOptions.Builder.withDefaults());
+		if (result.isEmpty())
+			throw new ServiceException("Invalid user " + userId);
+		Entity user = result.get(0);
+		user.setProperty(EMAIL_FLAGS, flags);
+		datastore.put(user);
 	}
 
 }

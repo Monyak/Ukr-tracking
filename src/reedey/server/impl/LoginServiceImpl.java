@@ -36,7 +36,10 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public User loginFromSession() {
 		HttpSession session = getThreadLocalRequest().getSession();
-		return (User) session.getAttribute(USER_ATTR);
+		User user = (User) session.getAttribute(USER_ATTR);
+		if (user != null)
+			return getUserById(user.getId());
+		return null;
 	}
 
 	@Override
@@ -56,7 +59,29 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		if (!result.isEmpty()) {
 			Entity entity = result.get(0);
 			User user = new User((String) entity.getProperty(USER_LOGIN),
-					(long) entity.getProperty(USER_ID2));
+					(long) entity.getProperty(USER_ID2), (String) entity.getProperty(EMAIL));
+			Integer flags = (Integer) entity.getProperty(EMAIL_FLAGS);
+			user.setFlags(flags != null ? flags : 0);
+			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
+			return user;
+		}
+		return null;
+	}
+	
+	private User getUserById(long userId) {
+		DatastoreService datastore = DatastoreServiceFactory
+				.getDatastoreService();
+
+		Query query = new Query(USER_TABLE).setFilter(new Query.FilterPredicate(
+				USER_ID2, FilterOperator.EQUAL, userId));
+		List<Entity> result = datastore.prepare(query).asList(
+				FetchOptions.Builder.withDefaults());
+		if (!result.isEmpty()) {
+			Entity entity = result.get(0);
+			User user = new User((String) entity.getProperty(USER_LOGIN),
+					(long) entity.getProperty(USER_ID2), (String) entity.getProperty(EMAIL));
+			Integer flags = (Integer) entity.getProperty(EMAIL_FLAGS);
+			user.setFlags(flags != null ? flags : 0);
 			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return user;
 		}

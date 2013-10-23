@@ -76,6 +76,9 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 			resp.getWriter().close();
 			return;
 		}
+		resp.getWriter().write("E-mail activated!");
+		resp.getWriter().close();
+		return;
 	}
 
 	private void saveTempToken(long userId, String email, long token) {
@@ -137,12 +140,10 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 	}
 
 	private void sendTokenMail(String userName, String email, long token) {
-		String msgBody = "Нажмите на ссылку для активации вашей почты (аккаунт - "
-				+ userName + "): <br/> "
-				+ "<a href=\"" + generateLink(token) + "\">"
-				+ generateLink(token) + "</a>";
+		String msgBody = "Click on link to activate e-mail (account - "
+				+ userName + "): "+ generateLink(token);
 		try {
-			new Mailer().sendMail(email, userName, "Активация почты", msgBody);
+			new Mailer().sendMail(email, userName, "E-mail activation", msgBody);
 		} catch (AddressException e) {
 			// throw new ServiceException(e);
 			log("Wrong adress", e);

@@ -20,7 +20,7 @@ public class Mailer {
 		Session session = Session.getDefaultInstance(props, null);
 
 		Message msg = new MimeMessage(session);
-		msg.setFrom(new InternetAddress("noreply@reedey.appspot.com", "Red Eye"));
+		msg.setFrom(new InternetAddress("reedey.noreply@gmail.com", "Red Eye Admin"));
 		msg.addRecipient(Message.RecipientType.TO, new InternetAddress(email,
 				userName));
 		msg.setSubject(subject);

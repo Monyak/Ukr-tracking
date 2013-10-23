@@ -13,7 +13,9 @@ public class MessageBox {
         final DialogBox box = new DialogBox();
         final VerticalPanel panel = new VerticalPanel();
         box.setText(header);
-        panel.add(new Label(content));
+        Label label = new Label(content);
+        label.setStyleName("message-label");
+        panel.add(label);
         final Button buttonClose = new Button("OK",new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
@@ -21,11 +23,7 @@ public class MessageBox {
                 box.removeFromParent();
             }
         });
-        // few empty labels to make widget larger
-        final Label emptyLabel = new Label("");
-        emptyLabel.setSize("auto","25px");
-        panel.add(emptyLabel);
-        panel.add(emptyLabel);
+        buttonClose.setStyleName("");
         buttonClose.setWidth("90px");
         panel.add(buttonClose);
         panel.setCellHorizontalAlignment(buttonClose, HasAlignment.ALIGN_RIGHT);
@@ -38,7 +36,9 @@ public class MessageBox {
         final DialogBox box = new DialogBox();
         final VerticalPanel panel = new VerticalPanel();
         box.setText(header);
-        panel.add(new Label(content));
+        Label label = new Label(content);
+        label.setStyleName("message-label");
+        panel.add(label);
         final Button buttonClose = new Button("OK",new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
@@ -47,11 +47,7 @@ public class MessageBox {
                 handler.onClick(event);
             }
         });
-        // few empty labels to make widget larger
-        final Label emptyLabel = new Label("");
-        emptyLabel.setSize("auto","25px");
-        panel.add(emptyLabel);
-        panel.add(emptyLabel);
+        buttonClose.setStyleName("");
         buttonClose.setWidth("90px");
         panel.add(buttonClose);
         panel.setCellHorizontalAlignment(buttonClose, HasAlignment.ALIGN_RIGHT);

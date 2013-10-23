@@ -8,9 +8,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("tracking")
 public interface TrackingService extends RemoteService {
 	
-	TrackingItem[] getItems(long userId);
+	TrackingItem[] getItems();
 
-	TrackingItem addItem(long userId, String barcode, String name);
+	TrackingItem addItem(String barcode, String name);
 
-	void removeItem(long userId, String barcode);
+	void removeItem(String barcode);
+	
+	void updateNotificationFlags(int flags);
 }

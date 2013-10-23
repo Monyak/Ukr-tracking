@@ -47,7 +47,7 @@
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>cronServlet</servlet-name>
+    <servlet-name>mailServlet</servlet-name>
     <url-pattern>/reedey/mail</url-pattern>
   </servlet-mapping>
   

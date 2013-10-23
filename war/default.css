@@ -35,3 +35,10 @@
 	display: table-cell;
 	font-size: 2em;
 }
+
+.message-label {
+	margin: 5px;
+	font-size: 1.2em;
+	font-family: Verdana;
+	margin-bottom: 15px;
+}

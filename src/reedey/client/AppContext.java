@@ -2,6 +2,8 @@ package reedey.client;
 
 import reedey.client.service.LoginService;
 import reedey.client.service.LoginServiceAsync;
+import reedey.client.service.MailService;
+import reedey.client.service.MailServiceAsync;
 import reedey.client.service.TrackingService;
 import reedey.client.service.TrackingServiceAsync;
 import reedey.shared.tracking.entity.User;
@@ -13,6 +15,7 @@ public class AppContext {
 
 	private LoginServiceAsync loginService;
 	private TrackingServiceAsync trackingService;
+	private MailServiceAsync mailService;
 
 	private User user;
 
@@ -35,6 +38,12 @@ public class AppContext {
 		if (trackingService == null)
 			trackingService = GWT.create(TrackingService.class);
 		return trackingService;
+	}
+
+	public MailServiceAsync getMailService() {
+		if (mailService == null)
+			mailService = GWT.create(MailService.class);
+		return mailService;
 	}
 
 	public User getUser() {

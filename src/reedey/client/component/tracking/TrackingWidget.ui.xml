@@ -30,12 +30,24 @@
 				</g:HTMLPanel>
 			</g:cell>
 			<g:cell verticalAlignment="middle">
-				<g:HTML ui:field="addButton" styleName="tracking-button icon-plus"
-					title="{msg.add}"></g:HTML>
+				<g:HTML ui:field="addButton" styleName="tracking-button icon-plus" title="{msg.add}"/>
 			</g:cell>
 			<g:cell verticalAlignment="middle">
-				<g:HTML ui:field="settingsButton" styleName="tracking-button icon-cogs"
-					title="{msg.settings}"></g:HTML>
+				<g:HTML ui:field="settingsButton" styleName="tracking-button icon-cogs" title="{msg.settings}"/>
+			</g:cell>
+			<g:cell verticalAlignment="middle">
+				<g:VerticalPanel styleName="tracking-config-panel">
+					<g:HorizontalPanel styleName="tracking-mail-panel">
+						<g:TextBox ui:field="mailTextBox" styleName="tracking-mail" visible="false" />
+						<g:HTML ui:field="mailSaveButton" styleName="tracking-button icon-save" 
+							visible="false" title="{msg.saveMail}"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel styleName="tracking-color-panel" ui:field="colorList" />
+				</g:VerticalPanel>
+				
+			</g:cell>
+			<g:cell verticalAlignment="middle">
+				
 			</g:cell>
 		</g:HorizontalPanel>
 		<g:FlowPanel styleName="tracking-list-scroll">
