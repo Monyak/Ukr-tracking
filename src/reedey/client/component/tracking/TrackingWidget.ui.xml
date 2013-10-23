@@ -46,9 +46,6 @@
 				</g:VerticalPanel>
 				
 			</g:cell>
-			<g:cell verticalAlignment="middle">
-				
-			</g:cell>
 		</g:HorizontalPanel>
 		<g:FlowPanel styleName="tracking-list-scroll">
 			<g:ScrollPanel width="100%" height="100%">
