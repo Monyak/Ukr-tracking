@@ -4,6 +4,7 @@ import reedey.shared.tracking.entity.TrackingStatus;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -19,8 +20,10 @@ public class StatusIcon extends SimplePanel {
 		HTML html = new HTML();
 		panel.add(checkBox);
 		panel.add(html);
+		panel.setCellVerticalAlignment(checkBox, HasVerticalAlignment.ALIGN_MIDDLE);
+		panel.setCellVerticalAlignment(html, HasVerticalAlignment.ALIGN_MIDDLE);
 		checkBox.setValue((flags & (1 << status.ordinal())) > 0);
-		html.addStyleName(status.getStyle(false));
+		html.addStyleName(status.getStyle(true));
 		html.addStyleName("tracking-mail-color");
 		this.setWidget(panel);
 	}

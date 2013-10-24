@@ -260,11 +260,11 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		String mail = (String)result.get(0).getProperty(EMAIL);
 		if (mail == null)
 			return;
-		Integer flags = (Integer)result.get(0).getProperty(EMAIL_FLAGS);
+		Long flags = (Long)result.get(0).getProperty(EMAIL_FLAGS);
 		if (flags == null)
 			return;
 		log("Check item for flags(" + flags + "): " + item);
-		if (((1 << item.getStatus().ordinal()) & flags) > 0) {
+		if (((1 << item.getStatus().ordinal()) & flags.intValue()) > 0) {
 			log("Sending email");
 			Query nameQuery = new Query(USER_ITEM_TABLE).setFilter(new CompositeFilter(
 					CompositeFilterOperator.AND, Arrays.<Filter> asList(
@@ -279,8 +279,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 			if (name == null)
 				name = barcode;
 			try {
-				new Mailer().sendMail(mail, "", "Order state " + name + " has been changed!", 
-						"Current order state :<br/>" + item.getText());
+				new Mailer().sendMail(mail, "", "Статус заказа изменился: " + name, 
+						"Текущий статус: " + item.getText());
 			} catch (AddressException e) {
 				// throw new ServiceException(e);
 				log("Wrong adress", e);

@@ -16,8 +16,10 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -55,10 +57,15 @@ public class TrackingWidget extends Composite {
 	@UiField
 	HorizontalPanel colorList;
 	
+	@UiField
+	VerticalPanel configPanel;
+	
 	StatusIcon[] statuses;
 	
 	@UiField(provided=true)
 	Msg msg = Msg.I;
+
+	private boolean loading;
 	
 	public TrackingWidget() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -106,8 +113,11 @@ public class TrackingWidget extends Composite {
 		TrackingStatus[] values = TrackingStatus.values();
 		statuses = new StatusIcon[values.length];
 		int i = 0;
-		for (TrackingStatus status : values)
-			colorList.add(statuses[i++] = new StatusIcon(status, flags));
+		for (TrackingStatus status : values) {
+			colorList.add(statuses[i] = new StatusIcon(status, flags));
+			colorList.setCellVerticalAlignment(statuses[i], HasVerticalAlignment.ALIGN_MIDDLE);
+			i++;
+		}
 	}
 
 	@UiHandler("addButton")
@@ -135,9 +145,8 @@ public class TrackingWidget extends Composite {
 	
 	@UiHandler("settingsButton")
 	void onSettingsClick(ClickEvent e) {
-		boolean isVisible = mailTextBox.isVisible();
-		mailTextBox.setVisible(!isVisible);
-		mailSaveButton.setVisible(!isVisible);
+		boolean isVisible = configPanel.isVisible();
+		configPanel.setVisible(!isVisible);
 		if (isVisible)
 			settingsButton.removeStyleName("tracking-mail-blur");
 		else settingsButton.addStyleName("tracking-mail-blur");
@@ -145,28 +154,62 @@ public class TrackingWidget extends Composite {
 	
 	@UiHandler("mailSaveButton")
 	void onMailSaveClick(ClickEvent e) {
+		if (loading)
+			return;
 		String text = mailTextBox.getText().trim();
 		if (text.isEmpty() || text.equals(msg.yourMail())) {
 			MessageBox.show("", msg.mailEmpty());
 			return;
 		}
-		if (text.equals(AppContext.get().getUser().getEmail())) {
-			return;
+		setButtonEnabled(mailSaveButton, false);
+		if (!text.equals(AppContext.get().getUser().getEmail())) {
+			AppContext.get().getMailService().activateEmail(text, 
+					new AbstractAsyncCallback<Void>() {
+						@Override
+						public void onSuccess(Void result) {
+							setButtonEnabled(mailSaveButton, true);
+							MessageBox.show("", msg.confirmationMessageSent());
+						}
+						@Override
+						public String errorMessage() {
+							setButtonEnabled(mailSaveButton, true);
+							return super.errorMessage();
+						}
+					});
+		} else {
+			new Timer() {
+				@Override
+				public void run() {
+					setButtonEnabled(mailSaveButton, true);
+				}
+			}.schedule(2000);
 		}
-		mailSaveButton.addStyleName("tracking-mail-blur");
-		AppContext.get().getMailService().activateEmail(text, 
-				new AbstractAsyncCallback<Void>() {
-					@Override
-					public void onSuccess(Void result) {
-						mailSaveButton.removeStyleName("tracking-mail-blur");
-						MessageBox.show("", msg.confirmationMessageSent());
-					}
-					@Override
-					public String errorMessage() {
-						mailSaveButton.removeStyleName("tracking-mail-blur");
-						return super.errorMessage();
-					}
-				});
+		
+		int flags = getMailFlags();
+		if (flags != AppContext.get().getUser().getFlags()) {
+			AppContext.get().getTrackingService().updateNotificationFlags(flags, 
+					AbstractAsyncCallback.VOID);
+		}
+		
+		
+	}
+	
+	private void setButtonEnabled(HTML button, boolean enabled) {
+		if (enabled) {
+			loading = false;
+			button.removeStyleName("tracking-mail-blur");
+		} else {
+			loading = true;
+			button.addStyleName("tracking-mail-blur");
+		}
 	}
 
+	private int getMailFlags() {
+		int result = 0;
+		for (StatusIcon status : statuses){
+			if (status.getValue())
+				result |= (1 << status.getStatus().ordinal());
+		}
+		return result;
+	}
 }

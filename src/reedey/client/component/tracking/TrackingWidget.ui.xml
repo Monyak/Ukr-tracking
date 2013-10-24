@@ -36,15 +36,17 @@
 				<g:HTML ui:field="settingsButton" styleName="tracking-button icon-cogs" title="{msg.settings}"/>
 			</g:cell>
 			<g:cell verticalAlignment="middle">
-				<g:VerticalPanel styleName="tracking-config-panel">
+				<g:VerticalPanel styleName="tracking-config-panel" ui:field="configPanel" visible="false">
 					<g:HorizontalPanel styleName="tracking-mail-panel">
-						<g:TextBox ui:field="mailTextBox" styleName="tracking-mail" visible="false" />
-						<g:HTML ui:field="mailSaveButton" styleName="tracking-button icon-save" 
-							visible="false" title="{msg.saveMail}"/>
+						<g:cell verticalAlignment="middle">
+							<g:TextBox ui:field="mailTextBox" styleName="tracking-mail"  />
+						</g:cell>
+						<g:cell verticalAlignment="middle">
+							<g:HTML ui:field="mailSaveButton" styleName="tracking-button icon-save" title="{msg.saveMail}"/>
+						</g:cell>
 					</g:HorizontalPanel>
 					<g:HorizontalPanel styleName="tracking-color-panel" ui:field="colorList" />
 				</g:VerticalPanel>
-				
 			</g:cell>
 		</g:HorizontalPanel>
 		<g:FlowPanel styleName="tracking-list-scroll">

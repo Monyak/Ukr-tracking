@@ -148,19 +148,19 @@
 	background-color: #C3C3C3;
 }
 
-.tracking-red-light {
+.tracking-red-dark {
 	background-color: #c27373;
 }
 
-.tracking-green-light {
+.tracking-green-dark {
 	background-color: #76b173;
 }
 
-.tracking-yellow-light {
+.tracking-yellow-dark {
 	background-color: #dadd91;
 }
 
-.tracking-grey-light {
+.tracking-grey-dark {
 	background-color: #8d8d8d;
 }
 
@@ -184,5 +184,10 @@
 .tracking-mail-color {
 	width:15px;
 	height:15px;
+	margin-right:10px;
+}
+
+.tracking-color-panel {
+	margin-left: 15px;
 }
 

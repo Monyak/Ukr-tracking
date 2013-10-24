@@ -12,7 +12,7 @@ public enum TrackingStatus implements Serializable {
 	TrackingStatus(String styleName) {
 		this.style = styleName;
 	}
-	public String getStyle(boolean light) {
-		return style + (light ? "-light" : "");
+	public String getStyle(boolean dark) {
+		return style + (dark ? "-dark" : "");
 	}
 }

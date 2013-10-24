@@ -18,12 +18,14 @@ public class Mailer {
 			MessagingException, AddressException {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
-
-		Message msg = new MimeMessage(session);
-		msg.setFrom(new InternetAddress("reedey.noreply@gmail.com", "Red Eye Admin"));
+		
+		MimeMessage msg = new MimeMessage(session);
+		String encodingOptions = "text/html; charset=UTF-8";
+	    msg.setHeader("Content-Type", encodingOptions);
+		msg.setFrom(new InternetAddress("reedey.noreply@gmail.com", "Red Eye Notification"));
 		msg.addRecipient(Message.RecipientType.TO, new InternetAddress(email,
 				userName));
-		msg.setSubject(subject);
+		msg.setSubject(subject, "UTF-8");
 		msg.setText(message);
 		Transport.send(msg);
 	}

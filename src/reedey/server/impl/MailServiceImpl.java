@@ -140,10 +140,10 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 	}
 
 	private void sendTokenMail(String userName, String email, long token) {
-		String msgBody = "Click on link to activate e-mail (account - "
+		String msgBody = "Нажмите на ссылку для активации e-mail (аккаунт - "
 				+ userName + "): "+ generateLink(token);
 		try {
-			new Mailer().sendMail(email, userName, "E-mail activation", msgBody);
+			new Mailer().sendMail(email, userName, "Активация e-mail адреса", msgBody);
 		} catch (AddressException e) {
 			// throw new ServiceException(e);
 			log("Wrong adress", e);

@@ -60,8 +60,8 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			Entity entity = result.get(0);
 			User user = new User((String) entity.getProperty(USER_LOGIN),
 					(long) entity.getProperty(USER_ID2), (String) entity.getProperty(EMAIL));
-			Integer flags = (Integer) entity.getProperty(EMAIL_FLAGS);
-			user.setFlags(flags != null ? flags : 0);
+			Long flags = (Long) entity.getProperty(EMAIL_FLAGS);
+			user.setFlags(flags != null ? flags.intValue() : 0);
 			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return user;
 		}
@@ -80,8 +80,8 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			Entity entity = result.get(0);
 			User user = new User((String) entity.getProperty(USER_LOGIN),
 					(long) entity.getProperty(USER_ID2), (String) entity.getProperty(EMAIL));
-			Integer flags = (Integer) entity.getProperty(EMAIL_FLAGS);
-			user.setFlags(flags != null ? flags : 0);
+			Long flags = (Long) entity.getProperty(EMAIL_FLAGS);
+			user.setFlags(flags != null ? flags.intValue() : 0);
 			getThreadLocalRequest().getSession().setAttribute(USER_ATTR, user);
 			return user;
 		}
