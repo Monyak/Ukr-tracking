@@ -11,14 +11,17 @@ import static reedey.server.impl.DatabaseConstants.USER_ATTR;
 import static reedey.server.impl.DatabaseConstants.USER_ID;
 import static reedey.server.impl.DatabaseConstants.USER_ID2;
 import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
+import static reedey.server.impl.DatabaseConstants.USER_LOGIN;
 import static reedey.server.impl.DatabaseConstants.USER_TABLE;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -213,8 +216,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 			return TrackingStatus.NONE;
 		if (message.contains("вручене адресату (одержувачу) особисто"))
 			return TrackingStatus.DELIVERED;
-		//if (message.contains(""))
-		//	return TrackingStatus.DELIVERING;
+		if (message.contains("на даний час не вручене"))
+			return TrackingStatus.DELIVERING;
 		return TrackingStatus.PROCESSING;
 	}
 
@@ -246,49 +249,58 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 
 	private void checkForNotification(HistoryItem item, String barcode) {
-		long userId = getUserId();
-		
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
 
-		Query query = new Query(USER_TABLE).setFilter(
-				new Query.FilterPredicate(USER_ID2, FilterOperator.EQUAL, userId));
+		Query query = new Query(USER_ITEM_TABLE).setFilter(
+				new Query.FilterPredicate(BARCODE, FilterOperator.EQUAL, barcode));
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("Invalid user " + userId);
-		String mail = (String)result.get(0).getProperty(EMAIL);
-		if (mail == null)
-			return;
-		Long flags = (Long)result.get(0).getProperty(EMAIL_FLAGS);
-		if (flags == null)
-			return;
-		log("Check item for flags(" + flags + "): " + item);
-		if (((1 << item.getStatus().ordinal()) & flags.intValue()) > 0) {
-			log("Sending email");
-			Query nameQuery = new Query(USER_ITEM_TABLE).setFilter(new CompositeFilter(
-					CompositeFilterOperator.AND, Arrays.<Filter> asList(
-							new FilterPredicate(BARCODE, FilterOperator.EQUAL,
-									barcode.toUpperCase()), new FilterPredicate(
-									USER_ID, FilterOperator.EQUAL, userId))));
-			List<Entity> items = datastore.prepare(nameQuery)
-					.asList(FetchOptions.Builder.withDefaults());
-			if (items.isEmpty())
-				throw new ServiceException("Invalid barcode " + barcode + " for user " + userId);
-			String name = (String)items.get(0).getProperty(NAME);
-			if (name == null)
-				name = barcode;
-			try {
-				new Mailer().sendMail(mail, "", "Статус заказа изменился: " + name, 
-						"Текущий статус: " + item.getText());
-			} catch (AddressException e) {
-				// throw new ServiceException(e);
-				log("Wrong adress", e);
-			} catch (MessagingException e) {
-				log("Error occured while sending email", e);
-			} catch (Exception e) {
-				log("Error occured while sending email", e);
-				throw new ServiceException(e);
+			throw new ServiceException("Invalid barcode " + barcode);
+		Map<Long, String> users = new HashMap<>(result.size());
+		for (Entity user : result) {
+			Long userId = (Long) user.getProperty(USER_ID);
+			String itemName = (String) user.getProperty(NAME);
+			if (itemName == null)
+				itemName = barcode;
+			users.put(userId, itemName);
+		}
+		query = new Query(USER_TABLE).setFilter(
+				new Query.FilterPredicate(USER_ID2, FilterOperator.IN, users.keySet()));
+		result = datastore.prepare(query)
+				.asList(FetchOptions.Builder.withDefaults());
+		if (result.isEmpty())
+			throw new ServiceException("No users found for ids: " + users.keySet());
+		for (Entity user : result) {
+			String login = (String)user.getProperty(USER_LOGIN);
+			String mail = (String)user.getProperty(EMAIL);
+			if (mail == null) {
+				log("Skip notification for user " + login + " due to empty e-mail");
+				continue;
+			}
+			Long flags = (Long)user.getProperty(EMAIL_FLAGS);
+			if (flags == null) {
+				log("Skip notification for user " + login + " due to empty flags");
+				continue;
+			}
+			log("Check item for flags(" + flags + "): " + item);
+			if (((1 << item.getStatus().ordinal()) & flags.intValue()) > 0) {
+				Long userId = (Long) user.getProperty(USER_ID2);
+				String name = users.get(userId);
+				log("Sending email to " + login);
+				try {
+					new Mailer().sendMail(mail, "", "Статус заказа изменился: " + name, 
+							"Текущий статус: " + item.getText());
+				} catch (AddressException e) {
+					// throw new ServiceException(e);
+					log("Wrong adress", e);
+				} catch (MessagingException e) {
+					log("Error occured while sending email", e);
+				} catch (Exception e) {
+					log("Error occured while sending email", e);
+					throw new ServiceException(e);
+				}
 			}
 		}
 	}
@@ -318,5 +330,4 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		user.setProperty(EMAIL_FLAGS, flags);
 		datastore.put(user);
 	}
-
 }
