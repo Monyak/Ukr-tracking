@@ -35,8 +35,9 @@ public class EMSAdapter {
 			throw new ServiceException("Cannot parse response");
 		String result = html.substring(index1 + SEARCH_KEY.length(), index2);
 		result = result.replaceAll("\t", "");
-		result = result.replaceAll("\n", "");
 		result = result.replaceAll("\r", "");
+		result = result.replaceAll("\n", " ");
+		result = result.replaceAll("  ", " ").replaceAll("  ", " ");
 		return result;
 	}
 	

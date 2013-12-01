@@ -54,6 +54,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 
 	private static final EMSAdapter adapter = new EMSAdapter();
 	
+	
+	
 	@Override
 	public TrackingItem[] getItems() {
 		long userId = getUserId();
