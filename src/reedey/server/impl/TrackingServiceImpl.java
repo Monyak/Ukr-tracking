@@ -214,11 +214,11 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	}
 	
 	private TrackingStatus getTrackingStatus(String message) {
-		if (message.contains("тому що не зареєстровані в системі"))
+		if (message.contains("С‚РѕРјСѓ С‰Рѕ РЅРµ Р·Р°СЂРµС”СЃС‚СЂРѕРІР°РЅС– РІ СЃРёСЃС‚РµРјС–"))
 			return TrackingStatus.NONE;
-		if (message.contains("вручене адресату (одержувачу) особисто"))
+		if (message.contains("РІСЂСѓС‡РµРЅРµ Р°РґСЂРµСЃР°С‚Сѓ (РѕРґРµСЂР¶СѓРІР°С‡Сѓ) РѕСЃРѕР±РёСЃС‚Рѕ"))
 			return TrackingStatus.DELIVERED;
-		if (message.contains("на даний час не вручене"))
+		if (message.contains("РЅР° РґР°РЅРёР№ С‡Р°СЃ РЅРµ РІСЂСѓС‡РµРЅРµ"))
 			return TrackingStatus.DELIVERING;
 		return TrackingStatus.PROCESSING;
 	}
@@ -292,8 +292,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 				String name = users.get(userId);
 				log("Sending email to " + login);
 				try {
-					new Mailer().sendMail(mail, "", "Статус заказа изменился: " + name, 
-							"Текущий статус: " + item.getText());
+					new Mailer().sendMail(mail, "", "РЎС‚Р°С‚СѓСЃ Р·Р°РєР°Р·Р° РёР·РјРµРЅРёР»СЃСЏ: " + name, 
+							"РўРµРєСѓС‰РёР№ СЃС‚Р°С‚СѓСЃ: " + item.getText());
 				} catch (AddressException e) {
 					// throw new ServiceException(e);
 					log("Wrong adress", e);
