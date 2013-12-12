@@ -243,7 +243,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		for (String code : barcodes) {
 			getNewHistoryItem(code);
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				log("Interrupted",e);
 			}

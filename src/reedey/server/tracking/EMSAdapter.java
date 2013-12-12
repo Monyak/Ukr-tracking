@@ -32,8 +32,8 @@ public class EMSAdapter {
 	private String extractMessage(String html) {
 		int index1 = html.indexOf(SEARCH_KEY);
 		int index2 = html.indexOf(SEARCH_END, index1);
-		if (index1 == -1 || index2 == -1)
-			throw new ServiceException("Cannot parse response");
+		if (index1 == -1 || index2 == -1 || html.contains("Нет связи с сервером"))
+			throw new ServiceException("Cannot parse response. indexes=[" + index1 + "," + index2 + "]\n" + html);
 		String result = html.substring(index1 + SEARCH_KEY.length(), index2);
 		//result = result.replaceAll("\t", "");
 		result = result.replaceAll("\r", "");
