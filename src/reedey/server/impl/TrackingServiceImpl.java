@@ -171,7 +171,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		String message = null;
 		try {
 			message = adapter.getMessage(barcode);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log("Error while requesting url", e);
 			return null;
 		}
