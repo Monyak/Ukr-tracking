@@ -14,7 +14,6 @@ import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
 import static reedey.server.impl.DatabaseConstants.USER_LOGIN;
 import static reedey.server.impl.DatabaseConstants.USER_TABLE;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
