@@ -6,12 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 
 import static reedey.server.impl.DatabaseConstants.*;
-
 import reedey.client.service.LoginService;
 import reedey.shared.exceptions.ServiceException;
+import reedey.shared.login.LoginConstants;
 import reedey.shared.tracking.entity.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -39,6 +40,15 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		User user = (User) session.getAttribute(USER_ATTR);
 		if (user != null)
 			return getUserById(user.getId());
+		Cookie[] cookies = getThreadLocalRequest().getCookies();
+		if (cookies == null || cookies.length == 0)
+		    return null;
+		for (Cookie c : getThreadLocalRequest().getCookies())
+		    if (LoginConstants.SESSION_FIELD.equals(c.getName())) {
+		        user = getUserById(Long.valueOf(c.getValue()));
+		        session.setAttribute(USER_ATTR, user);
+		        return user;
+		    }
 		return null;
 	}
 

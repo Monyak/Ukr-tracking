@@ -1,14 +1,18 @@
 package reedey.client;
 
+import java.util.Date;
+
 import reedey.client.service.LoginService;
 import reedey.client.service.LoginServiceAsync;
 import reedey.client.service.MailService;
 import reedey.client.service.MailServiceAsync;
 import reedey.client.service.TrackingService;
 import reedey.client.service.TrackingServiceAsync;
+import reedey.shared.login.LoginConstants;
 import reedey.shared.tracking.entity.User;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Cookies;
 
 public class AppContext {
 	private static AppContext instance;
@@ -52,5 +56,9 @@ public class AppContext {
 
 	public void setUser(User user) {
 		this.user = user;
+		if (user != null)
+    		Cookies.setCookie(LoginConstants.SESSION_FIELD, String.valueOf(user.getId()), 
+                    new Date(new Date().getTime() + LoginConstants.SESSION_TIMEOUT));
+		else Cookies.removeCookie(LoginConstants.SESSION_FIELD);
 	}
 }

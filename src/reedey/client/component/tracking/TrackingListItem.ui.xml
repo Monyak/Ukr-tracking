@@ -20,7 +20,7 @@
 				</g:VerticalPanel>
 			</g:cell>
 			<g:cell width="30%">
-				<g:ScrollPanel ui:field="historyScrollPanel" width="100%" height="100%" styleName="tracking-history-scroll">
+				<g:ScrollPanel ui:field="historyScrollPanel" width="100%" height="100px" styleName="tracking-history-scroll">
 					<g:VerticalPanel ui:field="historyList" styleName="tracking-history-list"></g:VerticalPanel>
 				</g:ScrollPanel>
 			</g:cell>

@@ -8,6 +8,9 @@ import reedey.shared.tracking.entity.User;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -48,47 +51,60 @@ public class LoginScreen extends Composite {
     public LoginScreen() {
         initWidget(uiBinder.createAndBindUi(this));
         hideError();
+        KeyPressHandler enterHandler = new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if (event.getCharCode() == KeyCodes.KEY_ENTER)
+                    onLogin();
+            }
+        };
+        password.addKeyPressHandler(enterHandler);
+        login.addKeyPressHandler(enterHandler);
     }
     
     @UiHandler("button")
     void onLoginClick(ClickEvent e) {
-    	hideError();
+        onLogin();
+    }
+    
+    private void onLogin() {
+        hideError();
         if (validateFields())
-        	return;
+            return;
         if (register.getValue()) {
-        	// register
-        	AppContext.get().getLoginService().createUser(
-        			login.getText().trim(), 
-        			password.getText().trim(),
-        			new AbstractAsyncCallback<User>() {
-						@Override
-						public void onSuccess(User user) {
-							if (user == null) {
-								showError(msg.userExists());
-							} else {
-								AppContext.get().setUser(user);
-								RootPanel.get().clear();
-								RootPanel.get().add(new MainWidget());
-							}
-						}
-					});
+            // register
+            AppContext.get().getLoginService().createUser(
+                    login.getText().trim(), 
+                    password.getText().trim(),
+                    new AbstractAsyncCallback<User>() {
+                        @Override
+                        public void onSuccess(User user) {
+                            if (user == null) {
+                                showError(msg.userExists());
+                            } else {
+                                AppContext.get().setUser(user);
+                                RootPanel.get().clear();
+                                RootPanel.get().add(new MainWidget());
+                            }
+                        }
+                    });
         } else {
-        	// login
-        	AppContext.get().getLoginService().login(
-        			login.getText().trim(), 
-        			password.getText().trim(),
-        			new AbstractAsyncCallback<User>() {
-						@Override
-						public void onSuccess(User user) {
-							if (user == null) {
-								showError(msg.invalidLogin());
-							} else {
-								AppContext.get().setUser(user);
-								RootPanel.get().clear();
-								RootPanel.get().add(new MainWidget());
-							}
-						}
-					});
+            // login
+            AppContext.get().getLoginService().login(
+                    login.getText().trim(), 
+                    password.getText().trim(),
+                    new AbstractAsyncCallback<User>() {
+                        @Override
+                        public void onSuccess(User user) {
+                            if (user == null) {
+                                showError(msg.invalidLogin());
+                            } else {
+                                AppContext.get().setUser(user);
+                                RootPanel.get().clear();
+                                RootPanel.get().add(new MainWidget());
+                            }
+                        }
+                    });
         }
     }
     

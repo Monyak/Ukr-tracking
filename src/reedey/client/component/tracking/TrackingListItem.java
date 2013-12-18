@@ -10,6 +10,7 @@ import reedey.shared.tracking.entity.TrackingItem;
 import reedey.shared.tracking.entity.TrackingStatus;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -83,6 +84,8 @@ public class TrackingListItem extends Composite {
 		for (int i = 1; i < item.getItems().length; i++) {
 		    historyList.add(new HistoryItemWidget(item.getItems()[i]));
 		}
+        historyScrollPanel.getElement().getStyle().setOverflowX(Overflow.HIDDEN);
+        historyScrollPanel.getElement().getStyle().setOverflowY(Overflow.AUTO);
 	}
 	
 	@UiHandler("deleteButton")

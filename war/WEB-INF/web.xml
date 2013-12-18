@@ -76,6 +76,9 @@
         <url-pattern>/reedey/tracking/*</url-pattern>
     </filter-mapping>
 
+	<session-config>
+	    <session-timeout>20000</session-timeout>
+	</session-config>
   
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
