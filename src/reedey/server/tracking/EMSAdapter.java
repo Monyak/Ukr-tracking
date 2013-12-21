@@ -38,7 +38,8 @@ public class EMSAdapter {
 		//result = result.replaceAll("\t", "");
 		result = result.replaceAll("\r", "");
 		result = result.replaceAll("\n", " ");
-		if (result.contains("Нет связи с сервером") || result.contains("Сервер УкрПочты не отвечает")) {
+		if (result.contains("Нет связи с сервером") || result.contains("Сервер УкрПочты не отвечает")
+				|| result.contains("Что-то пошло не так")) {
 		    throw new ServiceException("Connection error:\n" + result);
 		}
 		//result = result.replaceAll("  ", " ").replaceAll("  ", " ");
