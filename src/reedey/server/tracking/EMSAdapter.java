@@ -6,12 +6,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import reedey.server.impl.Properties;
 import reedey.shared.exceptions.ServiceException;
 
 
 public class EMSAdapter {
 
-	private static final String URL = "http://otsledit.com.ua/index.php?co=ukrposhta&nomer_pos={barcode}"; //$NON-NLS-1$
+	private static final String URL = Properties.getString("emsukr.url"); //$NON-NLS-1$
 	
 	private static final String SEARCH_KEY = "h2></center>"; //$NON-NLS-1$
 	private static final String SEARCH_END = "</div>"; //$NON-NLS-1$

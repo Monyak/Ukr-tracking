@@ -157,6 +157,6 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 	}
 
 	private String generateLink(long token) {
-		return "http://ree-dey.appspot.com/reedey/mail?token=" + token; //$NON-NLS-1$
+		return Properties.getString("mail.activate.url") + token; //$NON-NLS-1$
 	}
 }

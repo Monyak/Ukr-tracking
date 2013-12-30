@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -31,9 +32,11 @@ import reedey.server.tracking.EMSAdapter;
 import reedey.server.tracking.Mailer;
 import reedey.server.tracking.Messages;
 import reedey.server.tracking.StatusHandler;
+import reedey.server.tracking.Track17Adapter;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
+import reedey.shared.tracking.entity.TrackingStatus;
 import reedey.shared.tracking.entity.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -52,8 +55,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 
 	private static final long serialVersionUID = -8002177620880133394L;
 
-	private static final EMSAdapter adapter = new EMSAdapter();
-	
+	private final EMSAdapter adapter = new EMSAdapter();
+	private final Track17Adapter track17 = new Track17Adapter();
 	
 	
 	@Override
@@ -123,6 +126,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		TrackingItem item = new TrackingItem();
 		item.setBarCode(barcode);
 		item.setName(name);
+		
+		
 		item.setItems(new HistoryItem[] { getNewHistoryItem(barcode)});
 		return item;
 	}
@@ -163,7 +168,18 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		HistoryItem[] items = new HistoryItem[result.size()];
 		for (int i = 0; i < result.size(); i++)
 			items[i] = extractHistoryItem(result.get(i));
-		Arrays.sort(items);
+		Arrays.sort(items, new Comparator<HistoryItem>() {
+            @Override
+            public int compare(HistoryItem item1, HistoryItem item2) {
+                if (StatusHandler.isOrigin(item1.getText()) ^ StatusHandler.isOrigin(item2.getText())) {
+                    if (StatusHandler.isOrigin(item1.getText()))
+                        return 1;
+                    else 
+                        return -1;
+                }
+                return -item1.getDate().compareTo(item2.getDate());
+            }
+		});
 		return items;
 	}
 	
@@ -192,8 +208,9 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 								MESSAGE, FilterOperator.EQUAL, message))));
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
-		if (!result.isEmpty())
+		if (!result.isEmpty()) 
 			return extractHistoryItem(result.get(0));
+		
 		log("Creating new history item for " + barcode); //$NON-NLS-1$
 		HistoryItem item = new HistoryItem(new Date(), message, StatusHandler.getTrackingStatus(message));
 		Entity entity = new Entity(HISTORY_ITEM_TABLE);
@@ -231,13 +248,50 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 			barcodes.add((String)code.getProperty(BARCODE));
 		log("Processing items " + barcodes.size()); //$NON-NLS-1$
 		for (String code : barcodes) {
-			getNewHistoryItem(code);
+			HistoryItem item = getNewHistoryItem(code);
+			if (item != null && item.getStatus() == TrackingStatus.NONE)
+			    checkOriginItems(code);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				log("Interrupted",e); //$NON-NLS-1$
 			}
 		}
+	}
+	
+	private HistoryItem[] checkOriginItems(String barcode) {
+	    try {
+	        Map<Date, String> items = track17.getMessages(barcode);
+	        log("Got " + items.size() + " track17 items");
+	        DatastoreService datastore = DatastoreServiceFactory
+	                .getDatastoreService();
+	        
+	        Query query = new Query(HISTORY_ITEM_TABLE).setFilter(new Query.FilterPredicate(DATE, FilterOperator.IN, items.keySet()));
+	        List<Entity> result = datastore.prepare(query)
+	                .asList(FetchOptions.Builder.withDefaults());
+	        if (result.size() == items.size()) {
+	            return null;
+	        } 
+	        for (Entity entity : result)
+	            items.remove(entity.getProperty(DATE));
+	        log("Items after removing:" + items.size());
+	        for (Entry<Date, String> entry : items.entrySet()) {
+	            try {
+	                String translated = track17.translateMessage(entry.getValue());
+	                Entity entity = new Entity(HISTORY_ITEM_TABLE);
+	                entity.setProperty(BARCODE, barcode);
+	                entity.setProperty(DATE, entry.getKey());
+	                entity.setProperty(MESSAGE, translated);
+	                datastore.put(entity);
+	            } catch (Exception e) {
+	                log("Cannot translate " + entry.getValue(), e);
+	            }
+	        }
+	    } catch (Exception e) {
+	        log("Error with 17track", e);
+	        return null;
+	    }
+	    return null;
 	}
 
 	private void checkForNotification(HistoryItem item, String barcode) {
