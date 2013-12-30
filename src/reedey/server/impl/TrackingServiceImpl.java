@@ -29,10 +29,11 @@ import javax.mail.internet.AddressException;
 import reedey.client.service.TrackingService;
 import reedey.server.tracking.EMSAdapter;
 import reedey.server.tracking.Mailer;
+import reedey.server.tracking.Messages;
+import reedey.server.tracking.StatusHandler;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.tracking.entity.HistoryItem;
 import reedey.shared.tracking.entity.TrackingItem;
-import reedey.shared.tracking.entity.TrackingStatus;
 import reedey.shared.tracking.entity.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -58,7 +59,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	@Override
 	public TrackingItem[] getItems() {
 		long userId = getUserId();
-		log("Requesting items for user " + userId);
+		log("Requesting items for user " + userId); //$NON-NLS-1$
 		
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
@@ -99,7 +100,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	@Override
 	public TrackingItem addItem(String barcode, String name) {
 		long userId = getUserId();
-		log("Add item " + barcode + " for user " + userId);
+		log("Add item " + barcode + " for user " + userId); //$NON-NLS-1$ //$NON-NLS-2$
 		barcode = barcode.toUpperCase();
 		
 		DatastoreService datastore = DatastoreServiceFactory
@@ -129,7 +130,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	@Override
 	public void removeItem(String barcode) {
 		long userId = getUserId();
-		log("Remove item " + barcode + " for user " + userId);
+		log("Remove item " + barcode + " for user " + userId); //$NON-NLS-1$ //$NON-NLS-2$
 		barcode = barcode.toUpperCase();
 		
 		DatastoreService datastore = DatastoreServiceFactory
@@ -143,12 +144,12 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("Cannot find item " + barcode + " for user " + userId);
+			throw new ServiceException("Cannot find item " + barcode + " for user " + userId); //$NON-NLS-1$ //$NON-NLS-2$
 		datastore.delete(result.get(0).getKey());
 	}
 	
 	private HistoryItem[] getHistoryItems(String barcode) {
-		log("Get history items for " + barcode);
+		log("Get history items for " + barcode); //$NON-NLS-1$
 		barcode = barcode.toUpperCase();
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
@@ -171,14 +172,14 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		try {
 			message = adapter.getMessage(barcode);
 		} catch (Exception e) {
-			log("Error while requesting url", e);
+			log("Error while requesting url", e); //$NON-NLS-1$
 			return null;
 		}
 		return findOrCreateHistoryItem(barcode, message);
 	}
 	
 	private HistoryItem findOrCreateHistoryItem(String barcode, String message) {
-		log("Looking item: " + barcode + " with message: \n" + message);
+		log("Looking item: " + barcode + " with message: \n" + message); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// MessageDigest md = MessageDigest.getInstance("MD5");
 		DatastoreService datastore = DatastoreServiceFactory
@@ -193,8 +194,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 				.asList(FetchOptions.Builder.withDefaults());
 		if (!result.isEmpty())
 			return extractHistoryItem(result.get(0));
-		log("Creating new history item for " + barcode);
-		HistoryItem item = new HistoryItem(new Date(), message, getTrackingStatus(message));
+		log("Creating new history item for " + barcode); //$NON-NLS-1$
+		HistoryItem item = new HistoryItem(new Date(), message, StatusHandler.getTrackingStatus(message));
 		Entity entity = new Entity(HISTORY_ITEM_TABLE);
 		entity.setProperty(BARCODE, barcode);
 		entity.setProperty(DATE, item.getDate());
@@ -209,21 +210,11 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	private HistoryItem extractHistoryItem(Entity entity) {
 		return new HistoryItem((Date)entity.getProperty(DATE),
 				(String)entity.getProperty(MESSAGE),
-				getTrackingStatus((String)entity.getProperty(MESSAGE)));
-	}
-	
-	private TrackingStatus getTrackingStatus(String message) {
-		if (message.contains("тому що не зареєстровані в системі"))
-			return TrackingStatus.NONE;
-		if (message.contains("вручене адресату (одержувачу) особисто"))
-			return TrackingStatus.DELIVERED;
-		if (message.contains("на даний час не вручене"))
-			return TrackingStatus.DELIVERING;
-		return TrackingStatus.PROCESSING;
+				StatusHandler.getTrackingStatus((String)entity.getProperty(MESSAGE)));
 	}
 
 	public void updateItems() {
-		log("Updating items ");
+		log("Updating items "); //$NON-NLS-1$
 		
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
@@ -238,13 +229,13 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		Set<String> barcodes = new HashSet<String>(result.size());
 		for (Entity code : result)
 			barcodes.add((String)code.getProperty(BARCODE));
-		log("Processing items " + barcodes.size());
+		log("Processing items " + barcodes.size()); //$NON-NLS-1$
 		for (String code : barcodes) {
 			getNewHistoryItem(code);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				log("Interrupted",e);
+				log("Interrupted",e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -258,7 +249,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("Invalid barcode " + barcode);
+			throw new ServiceException("Invalid barcode " + barcode); //$NON-NLS-1$
 		Map<Long, String> users = new HashMap<>(result.size());
 		for (Entity user : result) {
 			Long userId = (Long) user.getProperty(USER_ID);
@@ -272,34 +263,35 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("No users found for ids: " + users.keySet());
+			throw new ServiceException("No users found for ids: " + users.keySet()); //$NON-NLS-1$
 		for (Entity user : result) {
 			String login = (String)user.getProperty(USER_LOGIN);
 			String mail = (String)user.getProperty(EMAIL);
 			if (mail == null) {
-				log("Skip notification for user " + login + " due to empty e-mail");
+				log("Skip notification for user " + login + " due to empty e-mail"); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 			Long flags = (Long)user.getProperty(EMAIL_FLAGS);
 			if (flags == null) {
-				log("Skip notification for user " + login + " due to empty flags");
+				log("Skip notification for user " + login + " due to empty flags"); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
-			log("Check item for flags(" + flags + "): " + item);
+			log("Check item for flags(" + flags + "): " + item); //$NON-NLS-1$ //$NON-NLS-2$
 			if (((1 << item.getStatus().ordinal()) & flags.intValue()) > 0) {
 				Long userId = (Long) user.getProperty(USER_ID2);
 				String name = users.get(userId);
-				log("Sending email to " + login);
+				log("Sending email to " + login); //$NON-NLS-1$
 				try {
-					new Mailer().sendMail(mail, "", "Статус заказа изменился: " + name, 
-							"Текущий статус: " + item.getText());
+					new Mailer().sendMail(mail, "", Messages.getString("track.status.subject1") + name //$NON-NLS-1$ //$NON-NLS-2$
+					        + Messages.getString("track.status.subject2") + StatusHandler.getTrackingMessage(item.getStatus()),   //$NON-NLS-1$
+							Messages.getString("track.status.new") + item.getText());   //$NON-NLS-1$
 				} catch (AddressException e) {
 					// throw new ServiceException(e);
-					log("Wrong adress", e);
+					log("Wrong adress", e); //$NON-NLS-1$
 				} catch (MessagingException e) {
-					log("Error occured while sending email", e);
+					log("Error occured while sending email", e); //$NON-NLS-1$
 				} catch (Exception e) {
-					log("Error occured while sending email", e);
+					log("Error occured while sending email", e); //$NON-NLS-1$
 					throw new ServiceException(e);
 				}
 			}
@@ -316,7 +308,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	@Override
 	public void updateNotificationFlags(int flags) {
 		long userId = getUserId();
-		log("Updating flags for user=" + userId + ", flags=" + flags);
+		log("Updating flags for user=" + userId + ", flags=" + flags); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
@@ -326,7 +318,7 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		List<Entity> result = datastore.prepare(query)
 				.asList(FetchOptions.Builder.withDefaults());
 		if (result.isEmpty())
-			throw new ServiceException("Invalid user " + userId);
+			throw new ServiceException("Invalid user " + userId); //$NON-NLS-1$
 		Entity user = result.get(0);
 		user.setProperty(EMAIL_FLAGS, flags);
 		datastore.put(user);

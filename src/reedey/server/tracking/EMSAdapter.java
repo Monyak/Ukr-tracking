@@ -11,10 +11,10 @@ import reedey.shared.exceptions.ServiceException;
 
 public class EMSAdapter {
 
-	private static final String URL = "http://otsledit.com.ua/index.php?co=ukrposhta&nomer_pos={barcode}";
+	private static final String URL = "http://otsledit.com.ua/index.php?co=ukrposhta&nomer_pos={barcode}"; //$NON-NLS-1$
 	
-	private static final String SEARCH_KEY = "h2></center>";
-	private static final String SEARCH_END = "</div>";
+	private static final String SEARCH_KEY = "h2></center>"; //$NON-NLS-1$
+	private static final String SEARCH_END = "</div>"; //$NON-NLS-1$
 	
 	public EMSAdapter() {
 		
@@ -26,21 +26,21 @@ public class EMSAdapter {
 	}
 	
 	private String getUrl(String barcode) {
-		return URL.replace("{barcode}", barcode);
+		return URL.replace("{barcode}", barcode); //$NON-NLS-1$
 	}
 	
 	private String extractMessage(String html) {
 		int index1 = html.indexOf(SEARCH_KEY);
 		int index2 = html.indexOf(SEARCH_END, index1);
 		if (index1 == -1 || index2 == -1)
-			throw new ServiceException("Cannot parse response. indexes=[" + index1 + "," + index2 + "]\n" + html);
+			throw new ServiceException("Cannot parse response. indexes=[" + index1 + "," + index2 + "]\n" + html); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String result = html.substring(index1 + SEARCH_KEY.length(), index2);
 		//result = result.replaceAll("\t", "");
-		result = result.replaceAll("\r", "");
-		result = result.replaceAll("\n", " ");
-		if (result.contains("Нет связи с сервером") || result.contains("Сервер УкрПочты не отвечает")
-				|| result.contains("Что-то пошло не так")) {
-		    throw new ServiceException("Connection error:\n" + result);
+		result = result.replaceAll("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		result = result.replaceAll("\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
+		if (result.contains(Messages.getString("ems.not.connected")) || result.contains(Messages.getString("ems.not.respond")) //$NON-NLS-1$ //$NON-NLS-2$
+				|| result.contains(Messages.getString("ems.something.wrong"))) { //$NON-NLS-1$
+		    throw new ServiceException("Connection error:\n" + result); //$NON-NLS-1$
 		}
 		//result = result.replaceAll("  ", " ").replaceAll("  ", " ");
 		return result;
@@ -51,13 +51,13 @@ public class EMSAdapter {
 		HttpURLConnection conn;
 		BufferedReader rd;
 		String line;
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		try {
 			url = new URL(urlInput);
 			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
+			conn.setRequestMethod("GET"); //$NON-NLS-1$
 			rd = new BufferedReader(
-					new InputStreamReader(conn.getInputStream(), "windows-1251"));
+					new InputStreamReader(conn.getInputStream(), "windows-1251")); //$NON-NLS-1$
 			while ((line = rd.readLine()) != null) {
 				result += line;
 			}
@@ -70,6 +70,6 @@ public class EMSAdapter {
 	
 	// test
 	public static void main(String[] args) throws IOException {
-	    System.out.println(new EMSAdapter().getMessage("RB215593892CN"));
+	    System.out.println(new EMSAdapter().getMessage("RB215593892CN")); //$NON-NLS-1$
 	}
 }

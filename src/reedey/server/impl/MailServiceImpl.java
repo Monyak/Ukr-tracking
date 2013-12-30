@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import reedey.client.service.MailService;
 import reedey.server.tracking.Mailer;
+import reedey.server.tracking.Messages;
 import reedey.shared.exceptions.ServiceException;
 import reedey.shared.exceptions.SessionExpiredException;
 import reedey.shared.tracking.entity.User;
@@ -58,31 +59,31 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		clearOldTokens();
-		String tokenStr = req.getParameter("token");
+		String tokenStr = req.getParameter("token"); //$NON-NLS-1$
 		long token;
 		try {
 			token = Long.valueOf(tokenStr);
 		} catch (NumberFormatException e) {
-			log("Error while parsing token", e);
-			resp.getWriter().write("Invalid token");
+			log("Error while parsing token", e); //$NON-NLS-1$
+			resp.getWriter().write("Invalid token"); //$NON-NLS-1$
 			resp.getWriter().close();
 			return;
 		}
 		try {
 			verifyMailByToken(token);
 		} catch (IllegalArgumentException e) {
-			log("Expired token", e);
-			resp.getWriter().write("Invalid token");
+			log("Expired token", e); //$NON-NLS-1$
+			resp.getWriter().write("Invalid token"); //$NON-NLS-1$
 			resp.getWriter().close();
 			return;
 		}
-		resp.getWriter().write("E-mail activated!");
+		resp.getWriter().write("E-mail activated!"); //$NON-NLS-1$
 		resp.getWriter().close();
 		return;
 	}
 
 	private void saveTempToken(long userId, String email, long token) {
-		log("Add token " + token + " for user " + userId);
+		log("Add token " + token + " for user " + userId); //$NON-NLS-1$ //$NON-NLS-2$
 
 		DatastoreService datastore = DatastoreServiceFactory
 				.getDatastoreService();
@@ -135,27 +136,27 @@ public class MailServiceImpl extends RemoteServiceServlet implements
 			res.setProperty(EMAIL, mail);
 			datastore.put(res);
 		} else {
-			throw new IllegalArgumentException("User not found");
+			throw new IllegalArgumentException("User not found"); //$NON-NLS-1$
 		}
 	}
 
 	private void sendTokenMail(String userName, String email, long token) {
-		String msgBody = "Нажмите на ссылку для активации e-mail (аккаунт - "
-				+ userName + "): "+ generateLink(token);
+		String msgBody = Messages.getString("mail.activation.body") //$NON-NLS-1$
+				+ userName + "): "+ generateLink(token); //$NON-NLS-1$
 		try {
-			new Mailer().sendMail(email, userName, "Активация e-mail адреса", msgBody);
+			new Mailer().sendMail(email, userName, Messages.getString("mail.activation.subject"), msgBody); //$NON-NLS-1$
 		} catch (AddressException e) {
 			// throw new ServiceException(e);
-			log("Wrong adress", e);
+			log("Wrong adress", e); //$NON-NLS-1$
 		} catch (MessagingException e) {
-			log("Error occured while sending email", e);
+			log("Error occured while sending email", e); //$NON-NLS-1$
 		} catch (Exception e) {
-			log("Error occured while sending email", e);
+			log("Error occured while sending email", e); //$NON-NLS-1$
 			throw new ServiceException(e);
 		}
 	}
 
 	private String generateLink(long token) {
-		return "http://ree-dey.appspot.com/reedey/mail?token=" + token;
+		return "http://ree-dey.appspot.com/reedey/mail?token=" + token; //$NON-NLS-1$
 	}
 }

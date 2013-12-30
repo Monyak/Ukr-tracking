@@ -1,9 +1,9 @@
 package reedey.server.tracking;
 
-public class Hash {
+public class Track17Hash {
 
-    int l = 0;
-    String R = "";
+    //int l = 0;
+    //String R = "";
 
     String yqtrackapi_i(String s) {
         return yqtrackapi_v(yqtrackapi_r(yqtrackapi_z(s)));
@@ -55,8 +55,8 @@ public class Hash {
     };
 
     String yqtrackapi_v(String input) {
-        String v = l > 0 ? new String(new char[]{0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46})
-                : new String(new char[]{0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x61,0x62,0x63,0x64,0x65,0x66});
+        String v = /*l > 0 ?*/ new String(new char[]{0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x41,0x42,0x43,0x44,0x45,0x46})
+                ;//: new String(new char[]{0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x61,0x62,0x63,0x64,0x65,0x66});
         String output = "";
         int x;
         for (int i = 0; i < input.length(); i++) {
@@ -77,7 +77,7 @@ public class Hash {
         for (int i = 0; i < H; i += 3) {
             int bH = (input.charAt(i) << 16) | (i + 1 < H ? input.charAt(i + 1) << 8 : 0) | (i + 2 < H ? input.charAt(i + 2) : 0);
             for (int O = 0; O < 4; O++) {
-                if (i * 8 + O * 6 > input.length() * 8) output += R;
+                if (i * 8 + O * 6 > input.length() * 8) output += "";//R;
                 else output += tab.charAt((bH >>> 6 * (3 - O)) & 0x3F);
             }
         };
@@ -252,14 +252,12 @@ public class Hash {
 
     };
 
-    String hs(String[] params) {
-        return yqtrackapi_j(params);
+    String hs(String barcode) {
+        return yqtrackapi_j(new String[]{barcode, "0"});
     }
     
     public static void main(String[] args) {
-        String[] params = new String[] {"RC475720815CN","0"};
-        System.out.println(new Hash().hs(params));
-        String URL = "http://s1.17track.net/Rest/HandlerTrackPost.ashx?lo=www.17track.net&pt=0&num=RC475720815CN&hs=d269732058e5973621fad20a9a6a803f";
+        System.out.println(new Track17Hash().hs("RC336753543CN"));
     }
 
 }
