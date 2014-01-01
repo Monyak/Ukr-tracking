@@ -263,6 +263,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 	    try {
 	        Map<Date, String> items = track17.getMessages(barcode);
 	        log("Got " + items.size() + " track17 items");
+	        if (items.size() == 0)
+	            return null;
 	        DatastoreService datastore = DatastoreServiceFactory
 	                .getDatastoreService();
 	        
