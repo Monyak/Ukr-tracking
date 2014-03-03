@@ -1,18 +1,6 @@
 package reedey.server.impl;
 
-import static reedey.server.impl.DatabaseConstants.BARCODE;
-import static reedey.server.impl.DatabaseConstants.DATE;
-import static reedey.server.impl.DatabaseConstants.EMAIL;
-import static reedey.server.impl.DatabaseConstants.EMAIL_FLAGS;
-import static reedey.server.impl.DatabaseConstants.HISTORY_ITEM_TABLE;
-import static reedey.server.impl.DatabaseConstants.MESSAGE;
-import static reedey.server.impl.DatabaseConstants.NAME;
-import static reedey.server.impl.DatabaseConstants.USER_ATTR;
-import static reedey.server.impl.DatabaseConstants.USER_ID;
-import static reedey.server.impl.DatabaseConstants.USER_ID2;
-import static reedey.server.impl.DatabaseConstants.USER_ITEM_TABLE;
-import static reedey.server.impl.DatabaseConstants.USER_LOGIN;
-import static reedey.server.impl.DatabaseConstants.USER_TABLE;
+import static reedey.server.impl.DatabaseConstants.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -220,15 +208,74 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		datastore.put(entity);
 		
 		checkForNotification(item, barcode);
+		if (item.getStatus() == TrackingStatus.DELIVERED)
+            setItemDisabled(barcode);
 		
 		return item;
 	}
+	
+	private void setItemDisabled(String barcode) {
+        log("Disable item " + barcode);
+        barcode = barcode.toUpperCase();
+        
+        DatastoreService datastore = DatastoreServiceFactory
+                .getDatastoreService();
+        
+        Query query = new Query(USER_ITEM_TABLE).setFilter(new FilterPredicate(
+                                BARCODE, FilterOperator.EQUAL, barcode));
+        List<Entity> result = datastore.prepare(query)
+                .asList(FetchOptions.Builder.withDefaults());
+        if (result.isEmpty())
+            throw new ServiceException("Cannot find item " + barcode);
+        for (Entity item : result) {
+            item.setProperty(DISABLED, true);
+            datastore.put(item);
+        }
+    }
 
 	private HistoryItem extractHistoryItem(Entity entity) {
 		return new HistoryItem((Date)entity.getProperty(DATE),
 				(String)entity.getProperty(MESSAGE),
 				StatusHandler.getTrackingStatus((String)entity.getProperty(MESSAGE)));
 	}
+	
+	protected void processOldItems() {
+        log("Processing old items ");
+        DatastoreService datastore = DatastoreServiceFactory
+                .getDatastoreService();
+        
+        Query query = new Query(USER_ITEM_TABLE);
+        
+        List<Entity> result = datastore.prepare(query)
+                .asList(FetchOptions.Builder.withDefaults());
+        if (result.isEmpty())
+            return;
+        
+        Set<String> barcodes = new HashSet<String>(result.size());
+        for (Entity code : result) {
+            if (code.getProperty(DISABLED) == null || (boolean)code.getProperty(DISABLED) == false)
+                barcodes.add((String)code.getProperty(BARCODE));
+        }
+        log("Processing old items " + barcodes.size());
+        query = new Query(HISTORY_ITEM_TABLE).setFilter(new FilterPredicate(
+                BARCODE, FilterOperator.IN, barcodes));
+        result = datastore.prepare(query)
+                .asList(FetchOptions.Builder.withDefaults());
+        if (result.isEmpty())
+            return;
+        
+        Set<Entity> itemsForUpdate = new HashSet<Entity>(result.size());
+        for (Entity item : result) {
+            if (StatusHandler.getTrackingStatus((String)item.getProperty(MESSAGE)) == TrackingStatus.DELIVERED) {
+                itemsForUpdate.add(item);
+            }
+        }
+        
+        for (Entity item : itemsForUpdate) {
+            setItemDisabled((String)item.getProperty(BARCODE));
+        }
+            
+    }
 
 	public void updateItems() {
 		log("Updating items "); //$NON-NLS-1$
@@ -245,7 +292,8 @@ public class TrackingServiceImpl extends RemoteServiceServlet implements Trackin
 		
 		Set<String> barcodes = new HashSet<String>(result.size());
 		for (Entity code : result)
-			barcodes.add((String)code.getProperty(BARCODE));
+		    if (code.getProperty(DISABLED) == null || (boolean)code.getProperty(DISABLED) == false)
+                barcodes.add((String)code.getProperty(BARCODE));
 		log("Processing items " + barcodes.size()); //$NON-NLS-1$
 		for (String code : barcodes) {
 			HistoryItem item = getNewHistoryItem(code);

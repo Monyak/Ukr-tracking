@@ -16,8 +16,10 @@ public class SchedulerServiceImpl extends TrackingServiceImpl {
 			throws ServletException, IOException {
 		String type = request.getParameter("type");
 		log("Got type=" + type);
-		if (type == null || !type.equals("day") && !type.equals("night"))
+		if (type == null || !type.equals("day") && !type.equals("night")) {
+		    processOldItems();
 			return;
+		}
 		log("Starting cron task: " + type);
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+2:00"));
 		int hour = cal.get(Calendar.HOUR_OF_DAY);

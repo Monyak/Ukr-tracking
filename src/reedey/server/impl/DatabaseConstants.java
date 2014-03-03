@@ -6,6 +6,7 @@ public interface DatabaseConstants {
 
 	String USER_ID = "user_id";
 	String BARCODE = "barcode";
+	String DISABLED = "disabled";
 	String NAME = "name";
 	String MESSAGE = "message";
 	String DATE = "tracking_date";
