@@ -25,10 +25,10 @@ import reedey.server.impl.Properties;
 public class Track17Adapter {
     
     private static final String TRACK_URL = Properties.getString("track17.url");; //$NON-NLS-1$
-    private static final String TRANSLATE_URL = Properties.getString("bing.url");; //$NON-NLS-1$
-    private static final String APP_ID = Properties.getString("bing.app.id"); //$NON-NLS-1$
+    private static final String TRANSLATE_URL = Properties.getString("yandex.url");; //$NON-NLS-1$
+    private static final String APP_ID = Properties.getString("yandex.id"); //$NON-NLS-1$
     
-    private Track17Hash hasher = new Track17Hash();
+    //private Track17Hash hasher = new Track17Hash();
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd mm:hh"); //$NON-NLS-1$
     
     public Track17Adapter() {
@@ -40,11 +40,11 @@ public class Track17Adapter {
         params.put("lo", "www.17track.net"); //$NON-NLS-1$ //$NON-NLS-2$
         params.put("pt", "0"); //$NON-NLS-1$ //$NON-NLS-2$
         params.put("num", barcode); //$NON-NLS-1$
-        params.put("hs", hasher.hs(barcode)); //$NON-NLS-1$
+        //params.put("hs", hasher.hs(barcode)); //$NON-NLS-1$
         String json = requestHttp(TRACK_URL, params);
         if (json == null || json.isEmpty())
             throw new IOException("Got empty response for barcode=" + barcode); //$NON-NLS-1$
-        return extractMessages(json.substring(1, json.length() - 1));
+        return extractMessages(json);
     }
     
     private Map<Date, String> extractMessages(String json) throws Exception {
@@ -55,24 +55,31 @@ public class Track17Adapter {
             throw new IOException("Incorrect response:\n" + json); //$NON-NLS-1$
         
         JSONObject data = obj.getJSONObject("dat"); //$NON-NLS-1$
-        JSONArray sender = data.getJSONArray("x"); //$NON-NLS-1$
+        JSONArray sender = data.getJSONArray("z1"); //$NON-NLS-1$
         for (int i = 0; i < sender.length(); i++) {
             JSONObject item = sender.getJSONObject(i);
-            result.put(df.parse(item.getString("a")), item.getString("b")); //$NON-NLS-1$ //$NON-NLS-2$
+            result.put(df.parse(item.getString("a")), item.getString("c") + ", " + item.getString("z")); //$NON-NLS-1$ //$NON-NLS-2$
         }
             
         return result;
     }
     
-    public String translateMessage(String message) throws IOException {
-        Map<String, String> params = new HashMap<>();
-        params.put("appId", APP_ID); //$NON-NLS-1$
-        params.put("to", "uk"); //$NON-NLS-1$ //$NON-NLS-2$
+    public String translateMessage(String message) throws Exception {
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("key", APP_ID); //$NON-NLS-1$
+        params.put("lang", "ru"); //$NON-NLS-1$ //$NON-NLS-2$
         params.put("text", message); //$NON-NLS-1$
         String result = requestHttp(TRANSLATE_URL, params);
         if (result == null || result.isEmpty())
             throw new IOException("Got empty response for message=" + message); //$NON-NLS-1$
-        return Messages.getString("track.translated") + " " + result; //$NON-NLS-1$ //$NON-NLS-2$
+        if (result.contains("TranslateApiException"))
+            throw new IOException("TranslateException: " + result);
+        JSONObject obj = new JSONObject(result);
+        if (obj.getInt("code") != 200) {
+            throw new IOException("TranslateException: " + result);
+        }
+        String text = obj.getJSONArray("text").getString(0);
+        return Messages.getString("track.translated") + " " + text; //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     private String requestHttp(String urlInput, Map<String, String> params) throws IOException {
