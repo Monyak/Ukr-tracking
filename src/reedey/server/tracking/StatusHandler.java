@@ -6,7 +6,8 @@ public final class StatusHandler {
 
     public static TrackingStatus getTrackingStatus(String message) {
         if (message.contains(Messages.getString("track.not.registered")) //$NON-NLS-1$
-                || message.contains(Messages.getString("track.translated")))  //$NON-NLS-1$
+                || message.contains(Messages.getString("track.translated"))
+                || message.contains(Messages.getString("track.incorrect")))  //$NON-NLS-1$
             return TrackingStatus.NONE;
         if (message.contains(Messages.getString("track.handed"))) //$NON-NLS-1$
             return TrackingStatus.DELIVERED;

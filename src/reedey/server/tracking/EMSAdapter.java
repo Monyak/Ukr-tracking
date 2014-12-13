@@ -23,14 +23,18 @@ public class EMSAdapter {
 	
 	public String getMessage(String barcode) throws IOException {
 		String html = requestHttp(getUrl(barcode));
-		return extractMessage(html);
+		return extractMessage(html, barcode);
 	}
 	
 	private String getUrl(String barcode) {
 		return URL.replace("{barcode}", barcode); //$NON-NLS-1$
 	}
 	
-	private String extractMessage(String html) {
+	private String extractMessage(String html, String barcode) {
+	    if (html.contains(Messages.getString("track.incorrect"))) {
+	        return "[http://otsledit.com.ua/] " + Messages.getString("track.incorrect1")
+	                + " " + barcode + " " + Messages.getString("track.incorrect") + ".";
+	    }
 		int index1 = html.indexOf(SEARCH_KEY);
 		int index2 = html.indexOf(SEARCH_END, index1);
 		if (index1 == -1 || index2 == -1)
@@ -44,7 +48,7 @@ public class EMSAdapter {
 		    throw new ServiceException("Connection error:\n" + result); //$NON-NLS-1$
 		}
 		//result = result.replaceAll("  ", " ").replaceAll("  ", " ");
-		return result;
+		return result.trim();
 	}
 	
 	private String requestHttp(String urlInput) throws IOException {
@@ -71,6 +75,6 @@ public class EMSAdapter {
 	
 	// test
 	public static void main(String[] args) throws IOException {
-	    System.out.println(new EMSAdapter().getMessage("RB215593892CN")); //$NON-NLS-1$
+	    System.out.println(new EMSAdapter().getMessage("RB21559389111")); //$NON-NLS-1$
 	}
 }
